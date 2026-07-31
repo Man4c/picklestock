@@ -1,11 +1,18 @@
+import { TopNav } from "@/components/layout/TopNav";
+import { Footer } from "@/components/layout/Footer";
+import { CatalogView } from "@/components/catalog/CatalogView";
+import { getAllProducts } from "@/lib/products";
+
 export default function Home() {
+  const products = getAllProducts();
+
   return (
-    <div className="p-margin-page">
-      <h1 className="font-headline-lg text-headline-lg text-on-surface">Uji token</h1>
-      <p className="font-body-sm text-body-sm text-secondary">Teks sekunder</p>
-      <div className="mt-4 rounded-card bg-surface-level1 p-padding-card shadow-soft">
-        Kartu
+    <>
+      <TopNav />
+      <div className="pt-16">
+        <CatalogView products={products} />
       </div>
-    </div>
+      <Footer />
+    </>
   );
 }

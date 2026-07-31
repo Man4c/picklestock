@@ -87,7 +87,7 @@ app/
     page.tsx               dashboard stok           (/admin)
 components/
   ui/          Button, Input, Badge, IconButton
-  layout/      TopNav, BottomNav, Footer, AdminHeader
+  layout/      TopNav, Footer, AdminHeader
   catalog/     ProductCard, ProductGrid, FilterSidebar, SearchInput, CatalogView
   product/     ProductDetail, ProductGallery, SpecGrid, WhatsAppButton
   admin/       ProductTable, ProductRow, ProductFormModal, WhatsAppSetting, LoginForm
@@ -151,7 +151,6 @@ yang butuh state atau event handler:
 | `CatalogView` | **Client** | State filter, pencarian, urutan |
 | `app/produk/[slug]/page.tsx` | Server | Data statis; `generateStaticParams` |
 | `ProductGallery` | **Client** | Pilihan thumbnail aktif |
-| `BottomNav` | **Client** | Menandai tautan aktif via `usePathname` |
 | `app/admin/page.tsx` | Server | Menyusun tata letak |
 | `ProductTable` | **Client** | Buka/tutup modal, edit stok |
 | `ProductFormModal` | **Client** | State form, tutup via Escape |
@@ -318,6 +317,8 @@ Ketidakkonsistenan di output Stitch, beserta keputusannya:
 | 8 | Footer tertulis "© 2024" | Diubah jadi tahun berjalan lewat konstanta. |
 | 9 | Mockup katalog menulis "Showing 24 paddles" padahal hanya 4 kartu | Jumlah dihitung dari panjang array hasil filter. |
 | 10 | Tombol Prev/Next di dashboard tidak berfungsi | Dipertahankan dalam keadaan disabled, sesuai mockup — di sini kontrolnya memang sudah digambarkan mati. Berbeda dengan "Load More" di katalog, yang digambarkan aktif sehingga lebih jujur untuk tidak dibuat sama sekali. |
+| 11 | `DESIGN.md` §Components menjanjikan "floating bottom navigation bar", tapi **tak satu pun dari 10 mockup memuatnya** — navigasi selalu di atas | Mengikuti mockup: hanya `TopNav`. Komponen `BottomNav` tidak dibuat. Satu-satunya elemen `fixed bottom` adalah bilah CTA WhatsApp di detail produk versi mobile. |
+| 12 | Tautan nav "Brands" dan "Community" mengarah ke `href="#"`; halamannya tidak ada | Dipertahankan sebagai `<span>` non-interaktif bergaya sama, bukan `<Link>` yang menuju 404. Menjadi tautan sungguhan saat halamannya dibuat. |
 
 ## Perilaku
 
