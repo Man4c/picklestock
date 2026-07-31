@@ -35,6 +35,7 @@ export function AdminHeader() {
 
       <Link
         href="/admin/login"
+        aria-label="Keluar"
         className="inline-flex items-center gap-2 rounded-btn border border-border-subtle px-3 py-2 font-label-md text-label-md text-secondary transition-colors hover:text-primary"
       >
         <LogOut size={18} aria-hidden="true" />
