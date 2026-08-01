@@ -44,10 +44,10 @@ export function CatalogView({ products }: { products: Product[] }) {
   }
 
   return (
-    <main className="mx-auto flex max-w-[1440px] flex-col gap-8 px-margin-page py-stack-section md:flex-row">
-      <aside className="flex w-full flex-shrink-0 flex-col gap-6 md:w-64">
-        {/* Pencarian + chip cepat — hanya mobile */}
-        <div className="md:hidden">
+    <main className="mx-auto flex max-w-[1440px] flex-col gap-8 px-margin-page py-stack-section lg:flex-row">
+      <aside className="flex w-full flex-shrink-0 flex-col gap-6 lg:w-64">
+        {/* Pencarian + chip cepat — mobile & tablet (di bawah lg) */}
+        <div className="lg:hidden">
           <div className="relative mb-4">
             <Search
               size={20}
@@ -91,8 +91,8 @@ export function CatalogView({ products }: { products: Product[] }) {
       </aside>
 
       <div className="flex flex-1 flex-col gap-6">
-        {/* Judul + pencarian + chip aktif — hanya desktop */}
-        <div className="hidden flex-col gap-4 md:flex">
+        {/* Judul + pencarian + chip aktif — hanya desktop (lg ke atas) */}
+        <div className="hidden flex-col gap-4 lg:flex">
           <div className="flex items-end justify-between">
             <div>
               <h1 className="mb-1 font-headline-lg text-headline-lg">
@@ -150,8 +150,8 @@ export function CatalogView({ products }: { products: Product[] }) {
           )}
         </div>
 
-        {/* Jumlah hasil — hanya mobile */}
-        <p className="font-body-sm text-body-sm text-secondary md:hidden">
+        {/* Jumlah hasil — mobile & tablet (di bawah lg) */}
+        <p className="font-body-sm text-body-sm text-secondary lg:hidden">
           Menampilkan {visible.length} hasil
         </p>
 
