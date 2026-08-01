@@ -30,8 +30,8 @@ export function ProductCard({ product }: { product: Product }) {
         />
       </Link>
 
-      <div className="flex flex-1 flex-col p-padding-card">
-        <span className="mb-1 font-body-sm text-body-sm text-secondary">
+      <div className="flex flex-1 flex-col p-3 md:p-padding-card">
+        <span className="mb-1 line-clamp-1 font-body-sm text-body-sm text-secondary">
           {product.brand} • {product.material}
         </span>
         <h2 className="mb-3 line-clamp-2 font-headline-sm text-headline-sm leading-tight text-on-surface">
@@ -48,14 +48,18 @@ export function ProductCard({ product }: { product: Product }) {
             href={buildWhatsAppUrl(WHATSAPP_NUMBER, product)}
             target="_blank"
             rel="noopener noreferrer"
-            className={`inline-flex w-full items-center justify-center gap-2 rounded-btn py-2.5 font-label-md text-label-md transition-colors ${
+            className={`inline-flex w-full items-center justify-center gap-1.5 rounded-btn px-2 py-2.5 font-label-md text-label-md transition-colors sm:gap-2 ${
               ready
                 ? "bg-primary text-on-primary hover:bg-inverse-surface"
                 : "border border-border-subtle bg-transparent text-on-surface hover:border-primary"
             }`}
           >
-            <WhatsAppIcon size={18} />
-            {ready ? "Pesan via WhatsApp" : "Pre-Order via WhatsApp"}
+            <WhatsAppIcon size={18} className="shrink-0" />
+            {/* Label ringkas di HP kecil, lengkap mulai tablet — hindari pecah 3 baris di kartu sempit */}
+            <span className="sm:hidden">{ready ? "Pesan" : "Pre-Order"}</span>
+            <span className="hidden sm:inline">
+              {ready ? "Pesan via WhatsApp" : "Pre-Order via WhatsApp"}
+            </span>
           </a>
         </div>
       </div>
