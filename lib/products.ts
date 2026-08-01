@@ -1,144 +1,66 @@
-import type { Product } from "./types";
+import type { Product, ProductSpecs, StockStatus } from "./types";
+import { createClient } from "./supabase/server";
 
-const PRODUCTS: Product[] = [
-  {
-    id: "1",
-    slug: "pro-pickleball-paddle-carbon-x",
-    sku: "PDBL-CBX-01",
-    name: "Pro Pickleball Paddle Carbon X",
-    brand: "JOOLA",
-    material: "Carbon Fiber",
-    price: 2500000,
-    stock: 5,
-    status: "ready",
-    description:
-      "Dirancang untuk pemain agresif modern, Carbon X menghadirkan spin dan kontrol tak tertandingi. Permukaan raw carbon fiber memaksimalkan gesekan sehingga Anda dapat membentuk pukulan dengan presisi, sementara inti polimer 16mm memberi sentuhan lembut pada dink dan reset.",
-    images: ["/products/paddle-black.svg", "/products/paddle-black-2.svg"],
-    createdAt: "2026-06-01",
-    specs: {
-      weight: "7.8 - 8.2 oz",
-      weightAvg: 8.0,
-      thickness: "16 mm",
-      surface: "Raw Carbon Fiber",
-      core: "Polymer Honeycomb",
-    },
-  },
-  {
-    id: "2",
-    slug: "picklestock-speedster-pro",
-    sku: "PS-SPD-02",
-    name: "PickleStock Speedster Pro",
-    brand: "Selkirk",
-    material: "Fiberglass",
-    price: 1800000,
-    stock: 0,
-    status: "preorder",
-    description:
-      "Raket fiberglass bertenaga untuk pemain yang mengutamakan kecepatan bola. Permukaan bertekstur memberi kontrol ekstra pada servis dan drive.",
-    images: ["/products/paddle-red.svg"],
-    createdAt: "2026-05-20",
-    specs: {
-      weight: "7.6 - 8.0 oz",
-      weightAvg: 7.8,
-      thickness: "13 mm",
-      surface: "Textured Fiberglass",
-      core: "Polymer Honeycomb",
-    },
-  },
-  {
-    id: "3",
-    slug: "control-spin-master",
-    sku: "CRBN-CSM-03",
-    name: "Control Spin Master",
-    brand: "CRBN",
-    material: "Carbon Fiber",
-    price: 3100000,
-    stock: 3,
-    status: "ready",
-    description:
-      "Raket kontrol premium dengan permukaan raw carbon fiber penuh. Pilihan pemain yang mengandalkan permainan net dan penempatan bola presisi.",
-    images: ["/products/paddle-black-2.svg", "/products/paddle-black.svg"],
-    createdAt: "2026-06-15",
-    specs: {
-      weight: "8.0 - 8.4 oz",
-      weightAvg: 8.2,
-      thickness: "16 mm",
-      surface: "Raw Carbon Fiber",
-      core: "Polypropylene Honeycomb",
-    },
-  },
-  {
-    id: "4",
-    slug: "lite-speed-wave",
-    sku: "HEAD-LSW-04",
-    name: "Lite Speed Wave",
-    brand: "Head",
-    material: "Composite",
-    price: 1200000,
-    stock: 0,
-    status: "preorder",
-    description:
-      "Raket komposit ringan yang ramah untuk pemula. Bobot rendah mengurangi kelelahan lengan pada permainan panjang.",
-    images: ["/products/paddle-blue.svg"],
-    createdAt: "2026-04-10",
-    specs: {
-      weight: "7.2 - 7.6 oz",
-      weightAvg: 7.4,
-      thickness: "13 mm",
-      surface: "Composite",
-      core: "Polymer Honeycomb",
-    },
-  },
-  {
-    id: "5",
-    slug: "joola-hyperion-cfs",
-    sku: "PDBL-HYP-05",
-    name: "Hyperion CFS Swift",
-    brand: "JOOLA",
-    material: "Carbon Fiber",
-    price: 2900000,
-    stock: 2,
-    status: "ready",
-    description:
-      "Kombinasi tenaga dan kontrol dengan gagang memanjang untuk jangkauan lebih luas. Cocok untuk pemain dua tangan pada sisi backhand.",
-    images: ["/products/paddle-black.svg"],
-    createdAt: "2026-07-05",
-    specs: {
-      weight: "8.2 - 8.6 oz",
-      weightAvg: 8.4,
-      thickness: "14 mm",
-      surface: "Carbon Friction Surface",
-      core: "Polymer Honeycomb",
-    },
-  },
-  {
-    id: "6",
-    slug: "selkirk-amped-epic",
-    sku: "PS-AMP-06",
-    name: "Amped Epic Control",
-    brand: "Selkirk",
-    material: "Composite",
-    price: 1650000,
-    stock: 8,
-    status: "ready",
-    description:
-      "Raket serbaguna dengan sweet spot lebar. Pilihan aman bagi pemain menengah yang sedang membangun konsistensi pukulan.",
-    images: ["/products/paddle-blue.svg"],
-    createdAt: "2026-03-22",
-    specs: {
-      weight: "7.4 - 7.8 oz",
-      weightAvg: 7.6,
-      thickness: "13 mm",
-      surface: "FiberFlex",
-      core: "X5 Core",
-    },
-  },
-];
+/** Baris mentah dari tabel `products` (snake_case, specs/images JSONB). */
+type ProductRow = {
+  id: string;
+  slug: string;
+  sku: string;
+  name: string;
+  brand: string;
+  material: string;
+  price: number;
+  stock: number;
+  description: string;
+  images: string[];
+  specs: ProductSpecs;
+  created_at: string;
+};
 
-export function getAllProducts(): Product[] {
-  return PRODUCTS;
+function rowToProduct(row: ProductRow): Product {
+  const status: StockStatus = row.stock > 0 ? "ready" : "preorder";
+  return {
+    id: row.id,
+    slug: row.slug,
+    sku: row.sku,
+    name: row.name,
+    brand: row.brand,
+    material: row.material,
+    price: row.price,
+    stock: row.stock,
+    status,
+    description: row.description,
+    images: row.images,
+    createdAt: row.created_at,
+    specs: row.specs,
+  };
 }
 
-export function getProductBySlug(slug: string): Product | undefined {
-  return PRODUCTS.find((p) => p.slug === slug);
+export async function getAllProducts(): Promise<Product[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("[getAllProducts] gagal memuat produk:", error.message);
+    return [];
+  }
+  return (data as ProductRow[]).map(rowToProduct);
+}
+
+export async function getProductBySlug(slug: string): Promise<Product | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .eq("slug", slug)
+    .maybeSingle();
+
+  if (error) {
+    console.error(`[getProductBySlug] gagal memuat '${slug}':`, error.message);
+    return null;
+  }
+  return data ? rowToProduct(data as ProductRow) : null;
 }

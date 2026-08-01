@@ -3,8 +3,8 @@ import { Footer } from "@/components/layout/Footer";
 import { CatalogView } from "@/components/catalog/CatalogView";
 import { getAllProducts } from "@/lib/products";
 
-export default function Home() {
-  const products = getAllProducts();
+export default async function Home() {
+  const products = await getAllProducts();
 
   return (
     <>

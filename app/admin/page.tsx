@@ -9,8 +9,8 @@ export const metadata: Metadata = {
   title: `Dashboard Admin — ${SITE_NAME}`,
 };
 
-export default function AdminPage() {
-  const products = getAllProducts();
+export default async function AdminPage() {
+  const products = await getAllProducts();
 
   return (
     <div className="flex min-h-screen flex-col bg-surface">
