@@ -1,10 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
-import { MessageCircle } from "lucide-react";
 import type { Product } from "@/lib/types";
 import { formatRupiah, buildWhatsAppUrl } from "@/lib/format";
 import { WHATSAPP_NUMBER } from "@/lib/constants";
 import { Badge } from "@/components/ui/Badge";
+import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 
 export function ProductCard({ product }: { product: Product }) {
   const ready = product.status === "ready";
@@ -54,7 +54,7 @@ export function ProductCard({ product }: { product: Product }) {
                 : "border border-border-subtle bg-transparent text-on-surface hover:border-primary"
             }`}
           >
-            <MessageCircle size={18} aria-hidden="true" />
+            <WhatsAppIcon size={18} />
             {ready ? "Pesan via WhatsApp" : "Pre-Order via WhatsApp"}
           </a>
         </div>

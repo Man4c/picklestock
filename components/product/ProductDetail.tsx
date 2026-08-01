@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { ChevronRight, MessageCircle } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import type { Product } from "@/lib/types";
 import { formatRupiah, buildWhatsAppUrl } from "@/lib/format";
 import { WHATSAPP_NUMBER } from "@/lib/constants";
 import { Badge } from "@/components/ui/Badge";
+import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 import { ProductGallery } from "./ProductGallery";
 import { SpecGrid } from "./SpecGrid";
 
@@ -79,7 +80,7 @@ export function ProductDetail({ product }: { product: Product }) {
                 rel="noopener noreferrer"
                 className="flex w-full items-center justify-center gap-2 rounded-btn bg-primary py-4 font-label-md text-label-md text-on-primary transition-colors hover:bg-inverse-surface"
               >
-                <MessageCircle size={20} aria-hidden="true" />
+                <WhatsAppIcon size={20} />
                 {ctaLabel}
               </a>
               <p className="text-center font-body-sm text-body-sm text-status-muted">
@@ -98,7 +99,7 @@ export function ProductDetail({ product }: { product: Product }) {
           rel="noopener noreferrer"
           className="flex w-full items-center justify-center gap-2 rounded-btn bg-primary py-3.5 font-label-md text-label-md text-on-primary transition-transform active:scale-[0.98]"
         >
-          <MessageCircle size={20} aria-hidden="true" />
+          <WhatsAppIcon size={20} />
           {ctaLabel}
         </a>
       </div>
