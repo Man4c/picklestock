@@ -1,11 +1,17 @@
 "use client";
 
-import { BRANDS, MATERIALS, WEIGHT_RANGES } from "@/lib/constants";
+import { BRANDS, MATERIALS, WEIGHT_RANGES, SORT_OPTIONS } from "@/lib/constants";
 import type { Filters } from "@/lib/filter";
 
 type Props = {
   filters: Filters;
   onChange: (next: Filters) => void;
+  /**
+   * Tampilkan dropdown Urutkan. Default true (dipakai sidebar desktop). Di
+   * mobile, Urutkan punya sheet sendiri (SortSheet), jadi FilterSheet melewatkan
+   * false agar tiap sheet punya satu tanggung jawab.
+   */
+  showSort?: boolean;
 };
 
 function toggle<T>(list: T[], value: T): T[] {
@@ -14,27 +20,30 @@ function toggle<T>(list: T[], value: T): T[] {
     : [...list, value];
 }
 
-export function FilterSidebar({ filters, onChange }: Props) {
+export function FilterSidebar({ filters, onChange, showSort = true }: Props) {
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h3 className="mb-3 font-headline-sm text-headline-sm">Urutkan</h3>
-        <select
-          aria-label="Urutkan produk"
-          value={filters.sort}
-          onChange={(e) =>
-            onChange({ ...filters, sort: e.target.value as Filters["sort"] })
-          }
-          className="w-full cursor-pointer appearance-none rounded-input border-none bg-surface-input px-4 py-3 font-body-sm text-body-sm focus:ring-1 focus:ring-primary"
-        >
-          <option value="recommended">Rekomendasi</option>
-          <option value="price-asc">Harga: Termurah</option>
-          <option value="price-desc">Harga: Termahal</option>
-          <option value="newest">Terbaru</option>
-        </select>
-      </div>
+      {showSort && (
+        <div>
+          <h3 className="mb-3 font-headline-sm text-headline-sm">Urutkan</h3>
+          <select
+            aria-label="Urutkan produk"
+            value={filters.sort}
+            onChange={(e) =>
+              onChange({ ...filters, sort: e.target.value as Filters["sort"] })
+            }
+            className="w-full cursor-pointer appearance-none rounded-input border-none bg-surface-input px-4 py-3 font-body-sm text-body-sm focus:ring-1 focus:ring-primary"
+          >
+            {SORT_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
-      <fieldset className="border-t border-border-subtle pt-6">
+      <fieldset className={showSort ? "border-t border-border-subtle pt-6" : ""}>
         <legend className="mb-4 font-headline-sm text-headline-sm">Merek</legend>
         <div className="flex flex-col gap-3">
           {BRANDS.map((brand) => (

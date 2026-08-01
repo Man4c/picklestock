@@ -100,7 +100,7 @@ export function FilterSheet({ filters, onChange, resultCount, onClose }: Props) 
         </div>
 
         <div className="overflow-y-auto px-margin-page py-5">
-          <FilterSidebar filters={filters} onChange={onChange} />
+          <FilterSidebar filters={filters} onChange={onChange} showSort={false} />
         </div>
 
         <div className="shrink-0 border-t border-border-subtle px-margin-page py-4">

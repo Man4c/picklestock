@@ -7,6 +7,7 @@ import { applyFilters, EMPTY_FILTERS, type Filters } from "@/lib/filter";
 import { BRANDS, MATERIALS } from "@/lib/constants";
 import { FilterSidebar } from "./FilterSidebar";
 import { FilterSheet } from "./FilterSheet";
+import { SortSheet } from "./SortSheet";
 import { ProductGrid } from "./ProductGrid";
 
 /** Jumlah kriteria filter aktif — untuk badge tombol "Filter" di mobile/tablet. */
@@ -22,7 +23,7 @@ function countActiveFilters(f: Filters): number {
 
 export function CatalogView({ products }: { products: Product[] }) {
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
-  const [sheetOpen, setSheetOpen] = useState(false);
+  const [openSheet, setOpenSheet] = useState<null | "filter" | "sort">(null);
 
   const visible = useMemo(
     () => applyFilters(products, filters),
@@ -101,14 +102,14 @@ export function CatalogView({ products }: { products: Product[] }) {
             })}
           </div>
 
-          {/* Tombol pembuka filter lengkap — Berat, Harga & Urutkan hanya ada
-              di dalam sheet ini pada layar di bawah lg. */}
+          {/* Filter (Berat & Harga) dan Urutkan hanya dapat diakses lewat sheet
+              ini pada layar di bawah lg. Dua tombol, dua sheet berbeda. */}
           <div className="flex gap-2">
             <button
               type="button"
-              onClick={() => setSheetOpen(true)}
+              onClick={() => setOpenSheet("filter")}
               aria-haspopup="dialog"
-              aria-expanded={sheetOpen}
+              aria-expanded={openSheet === "filter"}
               className="inline-flex flex-1 items-center justify-center gap-2 rounded-btn border border-border-subtle bg-surface-pure py-2.5 font-label-md text-label-md text-on-surface transition-colors hover:border-primary"
             >
               <SlidersHorizontal size={16} aria-hidden="true" />
@@ -121,9 +122,9 @@ export function CatalogView({ products }: { products: Product[] }) {
             </button>
             <button
               type="button"
-              onClick={() => setSheetOpen(true)}
+              onClick={() => setOpenSheet("sort")}
               aria-haspopup="dialog"
-              aria-expanded={sheetOpen}
+              aria-expanded={openSheet === "sort"}
               className="inline-flex flex-1 items-center justify-center gap-2 rounded-btn border border-border-subtle bg-surface-pure py-2.5 font-label-md text-label-md text-on-surface transition-colors hover:border-primary"
             >
               <ArrowUpDown size={16} aria-hidden="true" />
@@ -206,12 +207,20 @@ export function CatalogView({ products }: { products: Product[] }) {
         <ProductGrid products={visible} />
       </div>
 
-      {sheetOpen && (
+      {openSheet === "filter" && (
         <FilterSheet
           filters={filters}
           onChange={setFilters}
           resultCount={visible.length}
-          onClose={() => setSheetOpen(false)}
+          onClose={() => setOpenSheet(null)}
+        />
+      )}
+
+      {openSheet === "sort" && (
+        <SortSheet
+          value={filters.sort}
+          onSelect={(sort) => setFilters({ ...filters, sort })}
+          onClose={() => setOpenSheet(null)}
         />
       )}
     </main>
