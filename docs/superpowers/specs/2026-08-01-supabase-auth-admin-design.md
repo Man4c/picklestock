@@ -33,8 +33,8 @@ panel admin (dan nanti CRUD di #3) tak terlindungi.
 
 ### File
 
-**`lib/supabase/middleware.ts` (BARU)** — helper `updateSession(request)`:
-- Membuat client Supabase untuk konteks middleware (pola `@supabase/ssr`:
+**`lib/supabase/proxy.ts` (BARU)** — helper `updateSession(request)`:
+- Membuat client Supabase untuk konteks proxy (pola `@supabase/ssr`:
   `getAll` dari `request.cookies`, `setAll` menulis ke `request.cookies` DAN
   `response.cookies` agar token refresh tersimpan).
 - Memanggil `supabase.auth.getUser()` — memvalidasi token ke server Supabase
@@ -54,12 +54,16 @@ panel admin (dan nanti CRUD di #3) tak terlindungi.
   untuk semua `/admin/*` (jangan buka panel bila auth tak dapat diverifikasi).
 - Mengembalikan `response` (NextResponse) dengan cookie yang benar.
 
-**`middleware.ts` (BARU, root proyek)** — entry middleware Next.js:
+**`proxy.ts` (BARU, root proyek)** — entry Proxy Next.js 16.
+> **PENTING (Next 16):** file convention `middleware.ts` DEPRECATED, diganti
+> `proxy.ts` dengan fungsi bernama `proxy` (bukan `middleware`). Verifikasi via
+> `node_modules/next/dist/docs/.../file-conventions/proxy.md`. Proxy default ke
+> runtime Node.js di v16 — cocok untuk Supabase.
 ```ts
 import { type NextRequest } from "next/server";
-import { updateSession } from "@/lib/supabase/middleware";
+import { updateSession } from "@/lib/supabase/proxy";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   return await updateSession(request);
 }
 
@@ -68,6 +72,11 @@ export const config = {
 };
 ```
 Matcher hanya `/admin/*` — route publik (katalog) tak terbebani.
+Catatan keamanan (dari docs): Server Actions ditangani sebagai POST ke route
+tempat dipakainya, sehingga matcher yang meliputi `/admin/*` juga meliputi
+action di `/admin/login`. Namun docs menegaskan verifikasi auth tetap harus di
+dalam tiap Server Function, bukan mengandalkan Proxy saja — memperkuat
+defense-in-depth di `app/admin/page.tsx`.
 
 **`app/admin/actions.ts` (BARU)** — Server Actions (`"use server"`):
 ```ts
