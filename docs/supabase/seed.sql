@@ -1,0 +1,27 @@
+-- Data awal: 6 produk yang sebelumnya hardcoded di lib/products.ts.
+-- images & specs sebagai literal JSONB; created_at eksplisit untuk urutan "Terbaru".
+insert into products (slug, sku, name, brand, material, price, stock, description, images, specs, created_at) values
+('pro-pickleball-paddle-carbon-x','PDBL-CBX-01','Pro Pickleball Paddle Carbon X','JOOLA','Carbon Fiber',2500000,5,
+ 'Dirancang untuk pemain agresif modern, Carbon X menghadirkan spin dan kontrol tak tertandingi. Permukaan raw carbon fiber memaksimalkan gesekan sehingga Anda dapat membentuk pukulan dengan presisi, sementara inti polimer 16mm memberi sentuhan lembut pada dink dan reset.',
+ '["/products/paddle-black.svg","/products/paddle-black-2.svg"]',
+ '{"weight":"7.8 - 8.2 oz","weightAvg":8.0,"thickness":"16 mm","surface":"Raw Carbon Fiber","core":"Polymer Honeycomb"}','2026-06-01'),
+('picklestock-speedster-pro','PS-SPD-02','PickleStock Speedster Pro','Selkirk','Fiberglass',1800000,0,
+ 'Raket fiberglass bertenaga untuk pemain yang mengutamakan kecepatan bola. Permukaan bertekstur memberi kontrol ekstra pada servis dan drive.',
+ '["/products/paddle-red.svg"]',
+ '{"weight":"7.6 - 8.0 oz","weightAvg":7.8,"thickness":"13 mm","surface":"Textured Fiberglass","core":"Polymer Honeycomb"}','2026-05-20'),
+('control-spin-master','CRBN-CSM-03','Control Spin Master','CRBN','Carbon Fiber',3100000,3,
+ 'Raket kontrol premium dengan permukaan raw carbon fiber penuh. Pilihan pemain yang mengandalkan permainan net dan penempatan bola presisi.',
+ '["/products/paddle-black-2.svg","/products/paddle-black.svg"]',
+ '{"weight":"8.0 - 8.4 oz","weightAvg":8.2,"thickness":"16 mm","surface":"Raw Carbon Fiber","core":"Polypropylene Honeycomb"}','2026-06-15'),
+('lite-speed-wave','HEAD-LSW-04','Lite Speed Wave','Head','Composite',1200000,0,
+ 'Raket komposit ringan yang ramah untuk pemula. Bobot rendah mengurangi kelelahan lengan pada permainan panjang.',
+ '["/products/paddle-blue.svg"]',
+ '{"weight":"7.2 - 7.6 oz","weightAvg":7.4,"thickness":"13 mm","surface":"Composite","core":"Polymer Honeycomb"}','2026-04-10'),
+('joola-hyperion-cfs','PDBL-HYP-05','Hyperion CFS Swift','JOOLA','Carbon Fiber',2900000,2,
+ 'Kombinasi tenaga dan kontrol dengan gagang memanjang untuk jangkauan lebih luas. Cocok untuk pemain dua tangan pada sisi backhand.',
+ '["/products/paddle-black.svg"]',
+ '{"weight":"8.2 - 8.6 oz","weightAvg":8.4,"thickness":"14 mm","surface":"Carbon Friction Surface","core":"Polymer Honeycomb"}','2026-07-05'),
+('selkirk-amped-epic','PS-AMP-06','Amped Epic Control','Selkirk','Composite',1650000,8,
+ 'Raket serbaguna dengan sweet spot lebar. Pilihan aman bagi pemain menengah yang sedang membangun konsistensi pukulan.',
+ '["/products/paddle-blue.svg"]',
+ '{"weight":"7.4 - 7.8 oz","weightAvg":7.6,"thickness":"13 mm","surface":"FiberFlex","core":"X5 Core"}','2026-03-22');
