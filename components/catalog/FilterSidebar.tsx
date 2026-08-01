@@ -16,7 +16,7 @@ function toggle<T>(list: T[], value: T): T[] {
 
 export function FilterSidebar({ filters, onChange }: Props) {
   return (
-    <div className="hidden flex-col gap-6 lg:flex">
+    <div className="flex flex-col gap-6">
       <div>
         <h3 className="mb-3 font-headline-sm text-headline-sm">Urutkan</h3>
         <select

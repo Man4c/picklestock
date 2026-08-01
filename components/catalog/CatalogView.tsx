@@ -1,20 +1,35 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Search, X } from "lucide-react";
+import { Search, X, SlidersHorizontal, ArrowUpDown } from "lucide-react";
 import type { Product } from "@/lib/types";
 import { applyFilters, EMPTY_FILTERS, type Filters } from "@/lib/filter";
 import { BRANDS, MATERIALS } from "@/lib/constants";
 import { FilterSidebar } from "./FilterSidebar";
+import { FilterSheet } from "./FilterSheet";
 import { ProductGrid } from "./ProductGrid";
+
+/** Jumlah kriteria filter aktif — untuk badge tombol "Filter" di mobile/tablet. */
+function countActiveFilters(f: Filters): number {
+  return (
+    f.brands.length +
+    f.materials.length +
+    f.weightRanges.length +
+    (f.priceMin !== null ? 1 : 0) +
+    (f.priceMax !== null ? 1 : 0)
+  );
+}
 
 export function CatalogView({ products }: { products: Product[] }) {
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   const visible = useMemo(
     () => applyFilters(products, filters),
     [products, filters],
   );
+
+  const activeCount = countActiveFilters(filters);
 
   const chips = [
     ...filters.brands.map((b) => ({ label: b, kind: "brand" as const })),
@@ -63,7 +78,7 @@ export function CatalogView({ products }: { products: Product[] }) {
               className="w-full rounded-input border-none bg-surface-input py-3 pl-10 pr-4 font-body-md text-body-md placeholder:text-status-muted focus:ring-1 focus:ring-primary"
             />
           </div>
-          <div className="hide-scrollbar flex gap-2 overflow-x-auto pb-2">
+          <div className="hide-scrollbar mb-3 flex gap-2 overflow-x-auto pb-2">
             {[...BRANDS, ...MATERIALS].map((label) => {
               const active =
                 filters.brands.includes(label) ||
@@ -85,9 +100,42 @@ export function CatalogView({ products }: { products: Product[] }) {
               );
             })}
           </div>
+
+          {/* Tombol pembuka filter lengkap — Berat, Harga & Urutkan hanya ada
+              di dalam sheet ini pada layar di bawah lg. */}
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setSheetOpen(true)}
+              aria-haspopup="dialog"
+              aria-expanded={sheetOpen}
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-btn border border-border-subtle bg-surface-pure py-2.5 font-label-md text-label-md text-on-surface transition-colors hover:border-primary"
+            >
+              <SlidersHorizontal size={16} aria-hidden="true" />
+              Filter
+              {activeCount > 0 && (
+                <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 font-label-md text-body-sm text-on-primary">
+                  {activeCount}
+                </span>
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={() => setSheetOpen(true)}
+              aria-haspopup="dialog"
+              aria-expanded={sheetOpen}
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-btn border border-border-subtle bg-surface-pure py-2.5 font-label-md text-label-md text-on-surface transition-colors hover:border-primary"
+            >
+              <ArrowUpDown size={16} aria-hidden="true" />
+              Urutkan
+            </button>
+          </div>
         </div>
 
-        <FilterSidebar filters={filters} onChange={setFilters} />
+        {/* Sidebar filter — hanya desktop (lg ke atas) */}
+        <div className="hidden lg:block">
+          <FilterSidebar filters={filters} onChange={setFilters} />
+        </div>
       </aside>
 
       <div className="flex flex-1 flex-col gap-6">
@@ -157,6 +205,15 @@ export function CatalogView({ products }: { products: Product[] }) {
 
         <ProductGrid products={visible} />
       </div>
+
+      {sheetOpen && (
+        <FilterSheet
+          filters={filters}
+          onChange={setFilters}
+          resultCount={visible.length}
+          onClose={() => setSheetOpen(false)}
+        />
+      )}
     </main>
   );
 }
