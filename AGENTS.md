@@ -25,3 +25,17 @@ sub-proyek berikutnya; lihat `docs/superpowers/specs/2026-08-01-supabase-*`.
 
 Ikon memakai `lucide-react` (SVG inline). Jangan memuat font Material Symbols
 dari CDN.
+
+## Auth admin
+
+Route `/admin/*` dijaga oleh **Proxy** Next 16 (`proxy.ts` di root →
+`lib/supabase/proxy.ts`; `middleware.ts` sudah deprecated). Proxy memakai
+`getUser()` (validasi ke server Supabase), **bukan** `getSession()` yang hanya
+membaca cookie mentah dan bisa dipalsukan. `app/admin/page.tsx` mengecek ulang
+`getUser()` sebagai pertahanan berlapis.
+
+Login/logout lewat **Server Actions** di `app/admin/actions.ts`
+(`signInWithPassword` / `signOut`). Pesan error sengaja generik ("Email atau
+kata sandi salah.") — jangan bocorkan apakah email atau password yang salah.
+Akun admin dibuat manual di dashboard Supabase (Authentication → Add user →
+Auto Confirm); tidak ada alur registrasi self-service.
