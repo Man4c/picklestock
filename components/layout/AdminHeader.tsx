@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { Phone, LogOut } from "lucide-react";
 import { SITE_NAME, WHATSAPP_NUMBER } from "@/lib/constants";
 import { Button } from "@/components/ui/Button";
+import { logout } from "@/app/admin/actions";
 
 export function AdminHeader() {
   const [phone, setPhone] = useState(WHATSAPP_NUMBER);
@@ -33,14 +33,16 @@ export function AdminHeader() {
         </Button>
       </div>
 
-      <Link
-        href="/admin/login"
-        aria-label="Keluar"
-        className="inline-flex items-center gap-2 rounded-btn border border-border-subtle px-3 py-2 font-label-md text-label-md text-secondary transition-colors hover:text-primary"
-      >
-        <LogOut size={18} aria-hidden="true" />
-        <span className="hidden sm:inline">Keluar</span>
-      </Link>
+      <form action={logout}>
+        <button
+          type="submit"
+          aria-label="Keluar"
+          className="inline-flex items-center gap-2 rounded-btn border border-border-subtle px-3 py-2 font-label-md text-label-md text-secondary transition-colors hover:text-primary"
+        >
+          <LogOut size={18} aria-hidden="true" />
+          <span className="hidden sm:inline">Keluar</span>
+        </button>
+      </form>
     </header>
   );
 }

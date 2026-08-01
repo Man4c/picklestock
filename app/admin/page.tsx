@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { AdminHeader } from "@/components/layout/AdminHeader";
 import { Footer } from "@/components/layout/Footer";
 import { ProductTable } from "@/components/admin/ProductTable";
 import { getAllProducts } from "@/lib/products";
+import { createClient } from "@/lib/supabase/server";
 import { SITE_NAME } from "@/lib/constants";
 
 export const metadata: Metadata = {
@@ -10,6 +12,17 @@ export const metadata: Metadata = {
 };
 
 export default async function AdminPage() {
+  // Pertahanan berlapis: Proxy sudah menjaga /admin/*, tapi jangan pernah
+  // merender dashboard tanpa memverifikasi user ke server Supabase.
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/admin/login");
+  }
+
   const products = await getAllProducts();
 
   return (

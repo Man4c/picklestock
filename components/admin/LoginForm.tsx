@@ -1,26 +1,28 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useActionState } from "react";
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { login } from "@/app/admin/actions";
 
 export function LoginForm() {
-  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
-
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    // TODO: ganti dengan Supabase Auth (PRD §5.B.1).
-    // Saat ini form apa pun diterima — tidak ada autentikasi sama sekali.
-    router.push("/admin");
-  }
+  const [state, formAction, pending] = useActionState(login, null);
 
   const fieldClass =
     "w-full rounded-input border border-transparent bg-surface-input py-3 font-body-md text-body-md text-on-surface transition-colors placeholder:text-status-muted focus:border-border-subtle focus:outline-none";
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <form action={formAction} className="flex flex-col gap-4">
+      {state?.error && (
+        <p
+          role="alert"
+          className="rounded-btn bg-error-container px-4 py-2.5 font-body-sm text-body-sm text-on-error-container"
+        >
+          {state.error}
+        </p>
+      )}
+
       <div className="flex flex-col gap-1.5">
         <label htmlFor="email" className="sr-only">
           Email
@@ -90,9 +92,15 @@ export function LoginForm() {
         </label>
       </div>
 
-      <Button type="submit" size="lg" fullWidth className="mt-4">
-        Masuk ke Dashboard
-        <ArrowRight size={18} aria-hidden="true" />
+      <Button type="submit" size="lg" fullWidth className="mt-4" disabled={pending}>
+        {pending ? (
+          "Memproses…"
+        ) : (
+          <>
+            Masuk ke Dashboard
+            <ArrowRight size={18} aria-hidden="true" />
+          </>
+        )}
       </Button>
     </form>
   );
