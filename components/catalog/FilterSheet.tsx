@@ -32,6 +32,16 @@ export function FilterSheet({ filters, onChange, resultCount, onClose }: Props) 
     }
     document.addEventListener("keydown", onKey);
 
+    // Sheet hanya untuk layar di bawah lg (panelnya `lg:hidden`). Bila viewport
+    // melebar ke lg saat sheet terbuka (rotasi tablet / resize), tutup — jika
+    // tidak, komponen tetap ter-mount, scroll-lock body bocor ke tampilan
+    // desktop, dan sheet muncul lagi begitu layar mengecil tanpa diminta.
+    const lg = window.matchMedia("(min-width: 1024px)");
+    function onViewportChange() {
+      if (lg.matches) onClose();
+    }
+    lg.addEventListener("change", onViewportChange);
+
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
@@ -39,6 +49,7 @@ export function FilterSheet({ filters, onChange, resultCount, onClose }: Props) 
 
     return () => {
       document.removeEventListener("keydown", onKey);
+      lg.removeEventListener("change", onViewportChange);
       document.body.style.overflow = prevOverflow;
     };
   }, [onClose]);
