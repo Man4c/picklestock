@@ -68,9 +68,91 @@ export function ProductTable({ products }: { products: Product[] }) {
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-card border border-border-subtle bg-surface-pure shadow-soft">
+      {/* Daftar kartu — mobile & tablet (< lg). Tabel lebar-tetap tidak muat di
+          layar sempit: bikin dokumen melebar (white space) dan menyembunyikan
+          kolom Harga/Aksi. Aksi di sini selalu terlihat (layar sentuh tak punya
+          hover). */}
+      <ul className="flex flex-col gap-4 lg:hidden">
+        {products.map((product) => {
+          const stock = stocks[product.id];
+          const ready = stock > 0;
+          return (
+            <li
+              key={product.id}
+              className="rounded-card border border-border-subtle bg-surface-pure p-padding-card shadow-soft"
+            >
+              <div className="flex items-start gap-4">
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-btn border border-border-subtle bg-surface-input">
+                  <Image
+                    src={product.images[0]}
+                    alt=""
+                    width={64}
+                    height={64}
+                    className="h-full w-full object-contain"
+                  />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="font-headline-sm text-headline-sm text-on-surface">
+                    {product.name}
+                  </div>
+                  <div className="mt-0.5 font-body-sm text-body-sm text-secondary">
+                    {product.brand} · SKU: {product.sku}
+                  </div>
+                  <div className="mt-2 font-price-tag text-price-tag text-on-surface">
+                    {formatRupiah(product.price)}
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-border-subtle pt-4">
+                <div className="flex items-center gap-2">
+                  <label
+                    htmlFor={`stok-m-${product.id}`}
+                    className="font-label-md text-label-md text-secondary"
+                  >
+                    Stok
+                  </label>
+                  <input
+                    id={`stok-m-${product.id}`}
+                    type="number"
+                    min={0}
+                    value={stock}
+                    onChange={(e) =>
+                      setStocks((s) => ({
+                        ...s,
+                        [product.id]: Math.max(0, Number(e.target.value)),
+                      }))
+                    }
+                    className="w-20 rounded-btn border border-border-subtle bg-surface-input px-2 py-1 text-center font-body-md text-body-md focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                  />
+                  <Badge status={ready ? "ready" : "preorder"}>
+                    {ready ? "Ready Stock" : "Pre-Order"}
+                  </Badge>
+                </div>
+                <div className="flex items-center gap-2">
+                  <IconButton
+                    label={`Edit ${product.name}`}
+                    onClick={() => setModal({ open: true, product })}
+                  >
+                    <Pencil size={20} aria-hidden="true" />
+                  </IconButton>
+                  <IconButton
+                    label={`Hapus ${product.name}`}
+                    className="hover:bg-error-container hover:text-error"
+                  >
+                    <Trash2 size={20} aria-hidden="true" />
+                  </IconButton>
+                </div>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+
+      {/* Tabel — desktop (lg+) */}
+      <div className="hidden overflow-hidden rounded-card border border-border-subtle bg-surface-pure shadow-soft lg:block">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[800px] border-collapse text-left">
+          <table className="w-full border-collapse text-left">
             <thead>
               <tr className="border-b border-border-subtle bg-surface-container-low">
                 <th scope="col" className={`${thClass} w-16`}>
@@ -175,20 +257,21 @@ export function ProductTable({ products }: { products: Product[] }) {
             </tbody>
           </table>
         </div>
+      </div>
 
-        <div className="flex items-center justify-between border-t border-border-subtle bg-surface-container-low p-padding-card">
-          <span className="font-body-sm text-body-sm text-secondary">
-            Menampilkan {products.length} dari {products.length} produk
-          </span>
-          <div className="flex gap-2">
-            {/* Paginasi menyusul bersama Supabase; mockup pun menggambarkannya mati */}
-            <Button variant="secondary" size="sm" disabled>
-              Sebelumnya
-            </Button>
-            <Button variant="secondary" size="sm" disabled>
-              Berikutnya
-            </Button>
-          </div>
+      {/* Paginasi — berlaku untuk kartu maupun tabel */}
+      <div className="flex flex-col items-start justify-between gap-3 rounded-card border border-border-subtle bg-surface-container-low p-padding-card sm:flex-row sm:items-center">
+        <span className="font-body-sm text-body-sm text-secondary">
+          Menampilkan {products.length} dari {products.length} produk
+        </span>
+        <div className="flex gap-2">
+          {/* Paginasi menyusul bersama Supabase; mockup pun menggambarkannya mati */}
+          <Button variant="secondary" size="sm" disabled>
+            Sebelumnya
+          </Button>
+          <Button variant="secondary" size="sm" disabled>
+            Berikutnya
+          </Button>
         </div>
       </div>
 
