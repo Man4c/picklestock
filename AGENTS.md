@@ -15,8 +15,13 @@ rujukan yang bisa disalin apa adanya**. Penyimpangan yang disengaja beserta
 alasannya tercatat di
 `docs/superpowers/specs/2026-07-31-integrasi-design-stitch-design.md`.
 
-Data produk berasal dari `lib/products.ts`. Saat Supabase masuk, file itulah
-satu-satunya yang perlu diganti — komponen tampilan tidak menyentuh sumber data.
+Data produk diakses lewat `lib/products.ts` (`getAllProducts`,
+`getProductBySlug`) — komponen tampilan tidak menyentuh sumber data. Kini
+membaca dari **Supabase** (bukan lagi array statis): client di
+`lib/supabase/server.ts`, kredensial di `.env.local` (template `.env.example`),
+skema & seed di `docs/supabase/`. `status` produk diturunkan dari `stock`
+(> 0 = `ready`), tidak disimpan di DB. Menulis (CRUD admin) belum ada — masih
+sub-proyek berikutnya; lihat `docs/superpowers/specs/2026-08-01-supabase-*`.
 
 Ikon memakai `lucide-react` (SVG inline). Jangan memuat font Material Symbols
 dari CDN.
