@@ -47,7 +47,9 @@ export async function getAllProducts(): Promise<Product[]> {
     console.error("[getAllProducts] gagal memuat produk:", error.message);
     return [];
   }
-  return (data as ProductRow[]).map(rowToProduct);
+  // `data` bisa null pada sebagian kondisi meski tanpa error — guard agar
+  // katalog tampil kosong, bukan crash (sesuai intent penanganan error spec).
+  return (data ?? []).map(rowToProduct);
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
