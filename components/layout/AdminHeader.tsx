@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Phone, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { SITE_NAME, WHATSAPP_NUMBER } from "@/lib/constants";
 import { Button } from "@/components/ui/Button";
+import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 import { logout } from "@/app/admin/actions";
 
 export function AdminHeader() {
@@ -17,7 +18,7 @@ export function AdminHeader() {
 
       {/* Pengaturan nomor WhatsApp — desktop */}
       <div className="mx-auto hidden max-w-md flex-1 items-center justify-center gap-2 md:flex">
-        <Phone size={20} aria-hidden="true" className="text-secondary" />
+        <WhatsAppIcon size={20} className="text-secondary" />
         <label htmlFor="wa-desktop" className="sr-only">
           Nomor WhatsApp admin
         </label>
