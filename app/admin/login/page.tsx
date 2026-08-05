@@ -5,7 +5,8 @@ import { LoginForm } from "@/components/admin/LoginForm";
 import { SITE_NAME } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: `Masuk Admin — ${SITE_NAME}`,
+  title: "Masuk Admin",
+  robots: { index: false, follow: false },
 };
 
 export default function LoginPage() {

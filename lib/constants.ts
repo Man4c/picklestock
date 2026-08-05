@@ -25,3 +25,10 @@ export const SORT_OPTIONS: { value: SortOption; label: string }[] = [
 export const FOOTER_YEAR = 2026;
 
 export const SITE_NAME = "PickleStock";
+
+export const SITE_DESCRIPTION =
+  "Katalog raket pickleball dengan informasi stok terkini dan pemesanan langsung melalui WhatsApp.";
+
+export const SITE_URL = (
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://picklestock.vercel.app"
+).replace(/\/$/, "");

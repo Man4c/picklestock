@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { getAdminClient } from "@/lib/admin";
 import { WHATSAPP_SETTING_KEY } from "@/lib/settings";
 import {
   normalizeWhatsAppNumber,
@@ -21,7 +22,7 @@ export async function login(
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
     console.error("[login] gagal:", error.message);
@@ -30,6 +31,18 @@ export async function login(
       return { error: "Email atau kata sandi salah." };
     }
     return { error: "Gagal terhubung. Coba lagi." };
+  }
+
+  const { data: membership, error: membershipError } = await supabase
+    .from("admin_users")
+    .select("user_id")
+    .eq("user_id", data.user.id)
+    .maybeSingle();
+
+  if (membershipError || !membership) {
+    await supabase.auth.signOut();
+    console.error("[login] akun bukan admin");
+    return { error: "Email atau kata sandi salah." };
   }
 
   revalidatePath("/admin", "layout");
@@ -46,15 +59,11 @@ export async function updateWhatsAppNumber(
   _previousState: WhatsAppActionState,
   formData: FormData,
 ): Promise<WhatsAppActionState> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
+  const admin = await getAdminClient();
+  if (!admin) {
     return { status: "error", message: "Sesi admin berakhir. Silakan masuk kembali." };
   }
+  const { supabase, user } = admin;
 
   const phone = normalizeWhatsAppNumber(String(formData.get("phone") ?? ""));
   if (!phone) {

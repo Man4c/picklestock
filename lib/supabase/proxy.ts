@@ -42,16 +42,26 @@ export async function updateSession(
     data: { user },
   } = await supabase.auth.getUser();
 
+  let isAdmin = false;
+  if (user) {
+    const { data: membership } = await supabase
+      .from("admin_users")
+      .select("user_id")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    isAdmin = Boolean(membership);
+  }
+
   // Cek /admin/login DULU — route ini nested di bawah /admin; tanpa pengecekan
   // ini, "belum login buka /admin/login" akan jadi redirect loop tak berujung.
   if (pathname === "/admin/login") {
-    if (user) {
+    if (isAdmin) {
       return NextResponse.redirect(new URL("/admin", request.url));
     }
     return response;
   }
 
-  if (pathname.startsWith("/admin") && !user) {
+  if (pathname.startsWith("/admin") && !isAdmin) {
     return NextResponse.redirect(new URL("/admin/login", request.url));
   }
 

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { getAdminClient } from "@/lib/admin";
 import type { ProductActionState } from "@/lib/product-action-state";
 import {
   PRODUCT_IMAGE_RULES,
@@ -12,17 +13,6 @@ const IMAGE_BUCKET = PRODUCT_IMAGE_RULES.bucket;
 
 function errorState(message: string): ProductActionState {
   return { status: "error", message };
-}
-
-async function getAuthenticatedClient() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
-
-  if (error || !user) return null;
-  return supabase;
 }
 
 function requiredText(formData: FormData, name: string): string {
@@ -177,8 +167,9 @@ export async function saveProduct(
   _previousState: ProductActionState,
   formData: FormData,
 ): Promise<ProductActionState> {
-  const supabase = await getAuthenticatedClient();
-  if (!supabase) return errorState("Sesi admin berakhir. Silakan masuk kembali.");
+  const admin = await getAdminClient();
+  if (!admin) return errorState("Sesi admin berakhir. Silakan masuk kembali.");
+  const { supabase } = admin;
 
   const productId = requiredText(formData, "productId");
   const isEditing = Boolean(productId);
@@ -292,8 +283,9 @@ export async function updateProductStock(
   productId: string,
   value: number,
 ): Promise<ProductActionState> {
-  const supabase = await getAuthenticatedClient();
-  if (!supabase) return errorState("Sesi admin berakhir. Silakan masuk kembali.");
+  const admin = await getAdminClient();
+  if (!admin) return errorState("Sesi admin berakhir. Silakan masuk kembali.");
+  const { supabase } = admin;
   if (!productId || !Number.isSafeInteger(value) || value < 0) {
     return errorState("Stok harus berupa angka bulat positif.");
   }
@@ -315,8 +307,9 @@ export async function deleteProduct(
   _previousState: ProductActionState,
   formData: FormData,
 ): Promise<ProductActionState> {
-  const supabase = await getAuthenticatedClient();
-  if (!supabase) return errorState("Sesi admin berakhir. Silakan masuk kembali.");
+  const admin = await getAdminClient();
+  if (!admin) return errorState("Sesi admin berakhir. Silakan masuk kembali.");
+  const { supabase } = admin;
   const productId = requiredText(formData, "productId");
   if (!productId) return errorState("Produk tidak valid.");
 

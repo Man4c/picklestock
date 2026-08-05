@@ -17,8 +17,10 @@ gambar Supabase Storage, dan nomor WhatsApp tujuan pemesanan.
 3. Jalankan SQL berikut di Supabase SQL Editor secara berurutan:
    - `docs/supabase/schema.sql` untuk instalasi baru; atau
    - `docs/supabase/crud-storage.sql` dan
-     `docs/supabase/whatsapp-settings.sql` untuk database lama.
-4. Buat akun admin melalui Supabase Authentication dengan Auto Confirm aktif.
+     `docs/supabase/whatsapp-settings.sql`, lalu
+     `docs/supabase/admin-authorization.sql` untuk database lama.
+4. Buat akun melalui Supabase Authentication dengan Auto Confirm aktif, lalu
+   tambahkan UUID akun tersebut ke `public.admin_users` (lihat migration).
 5. Jalankan aplikasi:
 
 ```bash
@@ -35,14 +37,15 @@ Katalog tersedia di `http://localhost:3000` dan dashboard di
 npm run check
 ```
 
-Perintah tersebut menjalankan TypeScript, ESLint, 19 test otomatis, dan build
+Perintah tersebut menjalankan TypeScript, ESLint, test otomatis, dan build
 produksi. Detail deployment dan smoke test tersedia di
 [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
 
 ## Keamanan
 
 - Katalog dan pengaturan WhatsApp hanya dapat dibaca publik.
-- Semua mutation memverifikasi user Supabase di Server Action.
-- RLS membatasi tulis produk, pengaturan, dan Storage ke role `authenticated`.
-- Aplikasi tidak menyediakan registrasi mandiri; akun admin dibuat manual.
+- Semua mutation memverifikasi sesi Supabase dan keanggotaan `admin_users`.
+- RLS memakai `is_admin()` untuk membatasi tulis produk, pengaturan, dan Storage.
+- Aplikasi tidak menyediakan registrasi mandiri; akun dan akses admin diberikan
+  secara terpisah agar akun Auth biasa tidak memperoleh akses dashboard.
 - Gambar dibatasi JPG/PNG/WebP, maksimal empat file dan 5 MB per file.

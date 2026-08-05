@@ -1,5 +1,6 @@
 -- Jalankan sekali di Supabase SQL Editor sebelum memakai CRUD produk.
--- Semua akun Auth di proyek PickleStock adalah admin (tidak ada self-signup).
+-- Setelah file ini dan whatsapp-settings.sql, jalankan admin-authorization.sql
+-- untuk membatasi mutation ke anggota public.admin_users.
 
 grant select on table public.products to anon, authenticated;
 grant insert, update, delete on table public.products to authenticated;

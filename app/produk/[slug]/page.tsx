@@ -11,11 +11,31 @@ type Props = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const product = await getProductBySlug(slug);
-  if (!product) return { title: "Produk tidak ditemukan — PickleStock" };
+  if (!product) return { title: "Produk tidak ditemukan" };
+
+  const description = product.description.slice(0, 155);
+  const images = product.images.map((url) => ({
+    url,
+    alt: `${product.name} — ${product.brand}`,
+  }));
 
   return {
-    title: `${product.name} — PickleStock`,
-    description: product.description.slice(0, 155),
+    title: product.name,
+    description,
+    alternates: { canonical: `/produk/${product.slug}` },
+    openGraph: {
+      type: "website",
+      url: `/produk/${product.slug}`,
+      title: product.name,
+      description,
+      images,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: product.name,
+      description,
+      images: product.images,
+    },
   };
 }
 

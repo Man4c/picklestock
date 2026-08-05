@@ -5,22 +5,18 @@ import { Footer } from "@/components/layout/Footer";
 import { ProductTable } from "@/components/admin/ProductTable";
 import { getAllProducts } from "@/lib/products";
 import { getWhatsAppNumber } from "@/lib/settings";
-import { createClient } from "@/lib/supabase/server";
-import { SITE_NAME } from "@/lib/constants";
+import { getAdminClient } from "@/lib/admin";
 
 export const metadata: Metadata = {
-  title: `Dashboard Admin — ${SITE_NAME}`,
+  title: "Dashboard Admin",
+  robots: { index: false, follow: false },
 };
 
 export default async function AdminPage() {
   // Pertahanan berlapis: Proxy sudah menjaga /admin/*, tapi jangan pernah
   // merender dashboard tanpa memverifikasi user ke server Supabase.
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
+  const admin = await getAdminClient();
+  if (!admin) {
     redirect("/admin/login");
   }
 
