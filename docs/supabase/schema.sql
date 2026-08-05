@@ -14,7 +14,11 @@ create policy "Admins can read own membership"
   on public.admin_users for select to authenticated
   using (user_id = (select auth.uid()));
 
-create or replace function public.is_admin()
+create schema if not exists private;
+revoke all on schema private from public, anon;
+grant usage on schema private to authenticated;
+
+create or replace function private.is_admin()
 returns boolean
 language sql
 stable
@@ -27,8 +31,8 @@ as $$
   );
 $$;
 
-revoke all on function public.is_admin() from public;
-grant execute on function public.is_admin() to authenticated;
+revoke all on function private.is_admin() from public, anon;
+grant execute on function private.is_admin() to authenticated;
 
 -- Skema tabel produk PickleStock.
 -- status TIDAK disimpan — diturunkan di aplikasi dari stock (stock > 0 = ready).
@@ -69,20 +73,20 @@ drop policy if exists "Authenticated admins can insert products" on products;
 drop policy if exists "Admins can insert products" on products;
 create policy "Admins can insert products"
   on products for insert to authenticated
-  with check ((select public.is_admin()));
+  with check ((select private.is_admin()));
 
 drop policy if exists "Authenticated admins can update products" on products;
 drop policy if exists "Admins can update products" on products;
 create policy "Admins can update products"
   on products for update to authenticated
-  using ((select public.is_admin()))
-  with check ((select public.is_admin()));
+  using ((select private.is_admin()))
+  with check ((select private.is_admin()));
 
 drop policy if exists "Authenticated admins can delete products" on products;
 drop policy if exists "Admins can delete products" on products;
 create policy "Admins can delete products"
   on products for delete to authenticated
-  using ((select public.is_admin()));
+  using ((select private.is_admin()));
 
 -- Bucket publik: katalog dapat memuat gambar tanpa sesi, tetapi hanya admin
 -- terautentikasi yang boleh mengunggah, mengganti, atau menghapus objek.
@@ -105,28 +109,25 @@ on conflict (id) do update set
   allowed_mime_types = excluded.allowed_mime_types;
 
 drop policy if exists "Authenticated admins can view product images" on storage.objects;
-create policy "Authenticated admins can view product images"
-  on storage.objects for select to authenticated
-  using (bucket_id = 'product-images');
 
 drop policy if exists "Authenticated admins can upload product images" on storage.objects;
 drop policy if exists "Admins can upload product images" on storage.objects;
 create policy "Admins can upload product images"
   on storage.objects for insert to authenticated
-  with check (bucket_id = 'product-images' and (select public.is_admin()));
+  with check (bucket_id = 'product-images' and (select private.is_admin()));
 
 drop policy if exists "Authenticated admins can update product images" on storage.objects;
 drop policy if exists "Admins can update product images" on storage.objects;
 create policy "Admins can update product images"
   on storage.objects for update to authenticated
-  using (bucket_id = 'product-images' and (select public.is_admin()))
-  with check (bucket_id = 'product-images' and (select public.is_admin()));
+  using (bucket_id = 'product-images' and (select private.is_admin()))
+  with check (bucket_id = 'product-images' and (select private.is_admin()));
 
 drop policy if exists "Authenticated admins can delete product images" on storage.objects;
 drop policy if exists "Admins can delete product images" on storage.objects;
 create policy "Admins can delete product images"
   on storage.objects for delete to authenticated
-  using (bucket_id = 'product-images' and (select public.is_admin()));
+  using (bucket_id = 'product-images' and (select private.is_admin()));
 
 -- Pengaturan situs: katalog dapat membaca nomor WhatsApp, admin terautentikasi
 -- dapat membuat atau memperbarui satu-satunya key yang didukung aplikasi.
@@ -157,11 +158,57 @@ drop policy if exists "Authenticated admins can insert WhatsApp setting" on publ
 drop policy if exists "Admins can insert WhatsApp setting" on public.site_settings;
 create policy "Admins can insert WhatsApp setting"
   on public.site_settings for insert to authenticated
-  with check (key = 'whatsapp_number' and (select public.is_admin()));
+  with check (key = 'whatsapp_number' and (select private.is_admin()));
 
 drop policy if exists "Authenticated admins can update WhatsApp setting" on public.site_settings;
 drop policy if exists "Admins can update WhatsApp setting" on public.site_settings;
 create policy "Admins can update WhatsApp setting"
   on public.site_settings for update to authenticated
-  using (key = 'whatsapp_number' and (select public.is_admin()))
-  with check (key = 'whatsapp_number' and (select public.is_admin()));
+  using (key = 'whatsapp_number' and (select private.is_admin()))
+  with check (key = 'whatsapp_number' and (select private.is_admin()));
+
+create index if not exists site_settings_updated_by_idx
+  on public.site_settings (updated_by);
+
+-- Pesanan dicatat admin setelah pelanggan berkomunikasi melalui WhatsApp.
+create table if not exists public.orders (
+  id             uuid primary key default gen_random_uuid(),
+  order_number   text unique not null,
+  customer_name  text not null,
+  customer_phone text not null,
+  product_id     uuid references public.products (id) on delete set null,
+  product_name   text not null,
+  quantity       integer not null check (quantity > 0 and quantity <= 100000),
+  unit_price     integer not null check (unit_price >= 0),
+  total_amount   bigint generated always as (quantity::bigint * unit_price::bigint) stored,
+  status         text not null default 'new' check (
+    status in ('new', 'confirmed', 'paid', 'shipped', 'completed', 'cancelled')
+  ),
+  notes          text not null default '',
+  order_date     date not null default current_date,
+  created_by     uuid references auth.users (id) on delete set null,
+  created_at     timestamptz not null default now(),
+  updated_at     timestamptz not null default now()
+);
+
+create index if not exists orders_status_created_at_idx
+  on public.orders (status, created_at desc);
+create index if not exists orders_product_id_idx on public.orders (product_id);
+create index if not exists orders_created_by_idx on public.orders (created_by);
+
+alter table public.orders enable row level security;
+revoke all on table public.orders from anon;
+grant select, insert, update, delete on table public.orders to authenticated;
+
+drop policy if exists "Admins can read orders" on public.orders;
+drop policy if exists "Admins can insert orders" on public.orders;
+drop policy if exists "Admins can update orders" on public.orders;
+drop policy if exists "Admins can delete orders" on public.orders;
+create policy "Admins can read orders" on public.orders for select to authenticated
+  using ((select private.is_admin()));
+create policy "Admins can insert orders" on public.orders for insert to authenticated
+  with check ((select private.is_admin()));
+create policy "Admins can update orders" on public.orders for update to authenticated
+  using ((select private.is_admin())) with check ((select private.is_admin()));
+create policy "Admins can delete orders" on public.orders for delete to authenticated
+  using ((select private.is_admin()));

@@ -1,14 +1,16 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Search, X, SlidersHorizontal, ArrowUpDown } from "lucide-react";
-import type { Product } from "@/lib/types";
+import { X, SlidersHorizontal, ArrowUpDown } from "lucide-react";
+import type { ProductPage } from "@/lib/products";
 import { applyFilters, EMPTY_FILTERS, type Filters } from "@/lib/filter";
 import { BRANDS, MATERIALS } from "@/lib/constants";
 import { FilterSidebar } from "./FilterSidebar";
 import { FilterSheet } from "./FilterSheet";
 import { SortSheet } from "./SortSheet";
 import { ProductGrid } from "./ProductGrid";
+import { ServerSearch } from "@/components/ui/ServerSearch";
+import { Pagination } from "@/components/ui/Pagination";
 
 /** Jumlah kriteria filter aktif — untuk badge tombol "Filter" di mobile/tablet. */
 function countActiveFilters(f: Filters): number {
@@ -22,12 +24,13 @@ function countActiveFilters(f: Filters): number {
 }
 
 export function CatalogView({
-  products,
+  productPage,
   whatsappNumber,
 }: {
-  products: Product[];
+  productPage: ProductPage;
   whatsappNumber: string;
 }) {
+  const { products, page, total, totalPages, query } = productPage;
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
   const [openSheet, setOpenSheet] = useState<null | "filter" | "sort">(null);
 
@@ -70,21 +73,11 @@ export function CatalogView({
       <aside className="flex w-full flex-shrink-0 flex-col gap-6 lg:w-64">
         {/* Pencarian + chip cepat — mobile & tablet (di bawah lg) */}
         <div className="lg:hidden">
-          <div className="relative mb-4">
-            <Search
-              size={20}
-              aria-hidden="true"
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-status-muted"
-            />
-            <input
-              type="search"
-              aria-label="Cari raket"
-              placeholder="Cari raket, merek..."
-              value={filters.query}
-              onChange={(e) => setFilters({ ...filters, query: e.target.value })}
-              className="w-full rounded-input border-none bg-surface-input py-3 pl-10 pr-4 font-body-md text-body-md placeholder:text-status-muted focus:ring-1 focus:ring-primary"
-            />
-          </div>
+          <ServerSearch
+            initialQuery={query}
+            placeholder="Cari raket, merek..."
+            className="mb-4"
+          />
           <div className="hide-scrollbar mb-3 flex gap-2 overflow-x-auto pb-2">
             {[...BRANDS, ...MATERIALS].map((label) => {
               const active =
@@ -154,26 +147,14 @@ export function CatalogView({
                 Katalog Raket
               </h1>
               <p className="font-body-sm text-body-sm text-secondary">
-                Menampilkan {visible.length} dari {products.length} raket.
+                Menampilkan {visible.length} dari {total} raket.
               </p>
             </div>
-            <div className="relative w-64">
-              <Search
-                size={20}
-                aria-hidden="true"
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-status-muted"
-              />
-              <input
-                type="search"
-                aria-label="Cari raket"
-                placeholder="Cari raket..."
-                value={filters.query}
-                onChange={(e) =>
-                  setFilters({ ...filters, query: e.target.value })
-                }
-                className="w-full rounded-input border-none bg-surface-input py-2 pl-10 pr-4 font-body-sm text-body-sm placeholder:text-status-muted focus:ring-1 focus:ring-primary"
-              />
-            </div>
+            <ServerSearch
+              initialQuery={query}
+              placeholder="Cari raket..."
+              className="w-64"
+            />
           </div>
 
           {chips.length > 0 && (
@@ -211,6 +192,12 @@ export function CatalogView({
         </p>
 
         <ProductGrid products={visible} whatsappNumber={whatsappNumber} />
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          pathname="/"
+          query={{ q: query || undefined }}
+        />
       </div>
 
       {openSheet === "filter" && (

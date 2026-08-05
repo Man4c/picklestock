@@ -8,9 +8,11 @@ import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 export function ProductCard({
   product,
   whatsappNumber,
+  eager = false,
 }: {
   product: Product;
   whatsappNumber: string;
+  eager?: boolean;
 }) {
   const ready = product.status === "ready";
 
@@ -31,6 +33,8 @@ export function ProductCard({
           alt={product.name}
           width={400}
           height={500}
+          loading={eager ? "eager" : "lazy"}
+          fetchPriority={eager ? "high" : "auto"}
           className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-105"
         />
       </Link>

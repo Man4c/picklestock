@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import Image from "next/image";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import type { Product } from "@/lib/types";
+import type { ProductPage } from "@/lib/products";
 import { formatRupiah } from "@/lib/format";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -12,16 +13,19 @@ import { WhatsAppSettingForm } from "./WhatsAppSettingForm";
 import { updateProductStock } from "@/app/admin/product-actions";
 import { ProductFormModal } from "./ProductFormModal";
 import { DeleteProductDialog } from "./DeleteProductDialog";
+import { ServerSearch } from "@/components/ui/ServerSearch";
+import { Pagination } from "@/components/ui/Pagination";
 
 type ModalState = { open: false } | { open: true; product: Product | null };
 
 export function ProductTable({
-  products,
+  productPage,
   whatsappNumber,
 }: {
-  products: Product[];
+  productPage: ProductPage;
   whatsappNumber: string;
 }) {
+  const { products, page, total, totalPages, query } = productPage;
   const [stockDrafts, setStockDrafts] = useState<Record<string, number>>({});
   const [modal, setModal] = useState<ModalState>({ open: false });
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
@@ -51,23 +55,30 @@ export function ProductTable({
 
   return (
     <>
-      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
         <div>
           <h2 className="font-headline-lg text-headline-lg text-on-surface">
             Manajemen Stok Produk
           </h2>
           <p className="mt-1 font-body-md text-body-md text-secondary">
-            Kelola inventaris dan harga raket pickleball Anda.
+            Kelola inventaris dan harga {total} raket pickleball Anda.
           </p>
         </div>
-        <Button
-          type="button"
-          onClick={() => setModal({ open: true, product: null })}
-          className="whitespace-nowrap shadow-soft"
-        >
-          <Plus size={18} aria-hidden="true" />
-          Tambah Produk Baru
-        </Button>
+        <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+          <ServerSearch
+            initialQuery={query}
+            placeholder="Cari produk atau SKU..."
+            className="w-full sm:w-64"
+          />
+          <Button
+            type="button"
+            onClick={() => setModal({ open: true, product: null })}
+            className="whitespace-nowrap shadow-soft"
+          >
+            <Plus size={18} aria-hidden="true" />
+            Tambah Produk Baru
+          </Button>
+        </div>
       </div>
 
       {notice && (
@@ -91,6 +102,17 @@ export function ProductTable({
       )}
 
       <WhatsAppSettingForm initialPhone={whatsappNumber} variant="mobile" />
+
+      {products.length === 0 && (
+        <div className="rounded-card border border-dashed border-border-subtle bg-surface-pure px-6 py-10 text-center">
+          <p className="font-headline-sm text-headline-sm text-on-surface">
+            Produk tidak ditemukan
+          </p>
+          <p className="mt-1 font-body-sm text-body-sm text-secondary">
+            Ubah kata pencarian atau tambahkan produk baru.
+          </p>
+        </div>
+      )}
 
       {/* Daftar kartu — mobile & tablet (< lg). Tabel lebar-tetap tidak muat di
           layar sempit: bikin dokumen melebar (white space) dan menyembunyikan
@@ -289,21 +311,12 @@ export function ProductTable({
         </div>
       </div>
 
-      {/* Paginasi — berlaku untuk kartu maupun tabel */}
-      <div className="flex flex-col items-start justify-between gap-3 rounded-card border border-border-subtle bg-surface-container-low p-padding-card sm:flex-row sm:items-center">
-        <span className="font-body-sm text-body-sm text-secondary">
-          Menampilkan {products.length} dari {products.length} produk
-        </span>
-        <div className="flex gap-2">
-          {/* Paginasi menyusul bersama Supabase; mockup pun menggambarkannya mati */}
-          <Button variant="secondary" size="sm" disabled>
-            Sebelumnya
-          </Button>
-          <Button variant="secondary" size="sm" disabled>
-            Berikutnya
-          </Button>
-        </div>
-      </div>
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        pathname="/admin"
+        query={{ q: query || undefined }}
+      />
 
       {modal.open && (
         <ProductFormModal

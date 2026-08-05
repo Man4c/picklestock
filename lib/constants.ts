@@ -32,3 +32,6 @@ export const SITE_DESCRIPTION =
 export const SITE_URL = (
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://picklestock.vercel.app"
 ).replace(/\/$/, "");
+
+export const CATALOG_PAGE_SIZE = 12;
+export const ADMIN_PAGE_SIZE = 10;

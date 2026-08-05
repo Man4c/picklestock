@@ -23,11 +23,12 @@ export function ProductGrid({
 
   return (
     <div className="grid grid-cols-2 gap-gutter-grid lg:grid-cols-3 xl:grid-cols-4">
-      {products.map((product) => (
+      {products.map((product, index) => (
         <ProductCard
           key={product.id}
           product={product}
           whatsappNumber={whatsappNumber}
+          eager={index === 0}
         />
       ))}
     </div>
