@@ -21,7 +21,13 @@ function countActiveFilters(f: Filters): number {
   );
 }
 
-export function CatalogView({ products }: { products: Product[] }) {
+export function CatalogView({
+  products,
+  whatsappNumber,
+}: {
+  products: Product[];
+  whatsappNumber: string;
+}) {
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
   const [openSheet, setOpenSheet] = useState<null | "filter" | "sort">(null);
 
@@ -204,7 +210,7 @@ export function CatalogView({ products }: { products: Product[] }) {
           Menampilkan {visible.length} hasil
         </p>
 
-        <ProductGrid products={visible} />
+        <ProductGrid products={visible} whatsappNumber={whatsappNumber} />
       </div>
 
       {openSheet === "filter" && (

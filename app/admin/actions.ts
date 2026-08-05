@@ -3,6 +3,11 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { WHATSAPP_SETTING_KEY } from "@/lib/settings";
+import {
+  normalizeWhatsAppNumber,
+  type WhatsAppActionState,
+} from "@/lib/whatsapp";
 
 export async function login(
   _prevState: { error: string } | null,
@@ -35,4 +40,44 @@ export async function logout(): Promise<void> {
   const supabase = await createClient();
   await supabase.auth.signOut();
   redirect("/admin/login");
+}
+
+export async function updateWhatsAppNumber(
+  _previousState: WhatsAppActionState,
+  formData: FormData,
+): Promise<WhatsAppActionState> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { status: "error", message: "Sesi admin berakhir. Silakan masuk kembali." };
+  }
+
+  const phone = normalizeWhatsAppNumber(String(formData.get("phone") ?? ""));
+  if (!phone) {
+    return {
+      status: "error",
+      message: "Masukkan nomor WhatsApp aktif dengan 10–15 digit.",
+    };
+  }
+
+  const { error } = await supabase.from("site_settings").upsert({
+    key: WHATSAPP_SETTING_KEY,
+    value: phone,
+    updated_at: new Date().toISOString(),
+    updated_by: user.id,
+  });
+
+  if (error) {
+    console.error("[updateWhatsAppNumber] gagal:", error.message);
+    return { status: "error", message: "Nomor WhatsApp gagal disimpan." };
+  }
+
+  revalidatePath("/");
+  revalidatePath("/admin");
+  revalidatePath("/produk/[slug]", "page");
+  return { status: "success", message: "Nomor WhatsApp tersimpan.", value: phone };
 }

@@ -3,15 +3,12 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import type { ProductActionState } from "@/lib/product-action-state";
+import {
+  PRODUCT_IMAGE_RULES,
+  validateProductImageSelection,
+} from "@/lib/product-image-validation";
 
-const IMAGE_BUCKET = "product-images";
-const MAX_IMAGES = 4;
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
-const ALLOWED_IMAGE_TYPES = new Map([
-  ["image/jpeg", "jpg"],
-  ["image/png", "png"],
-  ["image/webp", "webp"],
-]);
+const IMAGE_BUCKET = PRODUCT_IMAGE_RULES.bucket;
 
 function errorState(message: string): ProductActionState {
   return { status: "error", message };
@@ -120,12 +117,12 @@ async function uploadImages(
   const urls: string[] = [];
 
   for (const file of files) {
-    const extension = ALLOWED_IMAGE_TYPES.get(file.type);
+    const extension = PRODUCT_IMAGE_RULES.allowedTypes.get(file.type);
     if (!extension) {
       await supabase.storage.from(IMAGE_BUCKET).remove(uploadedPaths);
       return { urls: [], error: "Format gambar harus JPG, PNG, atau WebP." };
     }
-    if (file.size > MAX_IMAGE_SIZE) {
+    if (file.size > PRODUCT_IMAGE_RULES.maxSize) {
       await supabase.storage.from(IMAGE_BUCKET).remove(uploadedPaths);
       return { urls: [], error: "Ukuran setiap gambar maksimal 5 MB." };
     }
@@ -242,12 +239,8 @@ export async function saveProduct(
   const keptImages = requestedImages.filter((url) => trustedImages.includes(url));
   const newFiles = getNewImageFiles(formData);
 
-  if (keptImages.length + newFiles.length > MAX_IMAGES) {
-    return errorState(`Maksimal ${MAX_IMAGES} gambar per produk.`);
-  }
-  if (keptImages.length + newFiles.length === 0) {
-    return errorState("Tambahkan minimal satu gambar produk.");
-  }
+  const imageError = validateProductImageSelection(keptImages.length, newFiles);
+  if (imageError) return errorState(imageError);
 
   const id = productId || crypto.randomUUID();
   const uploaded = await uploadImages(supabase, id, newFiles);

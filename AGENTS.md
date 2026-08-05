@@ -31,6 +31,12 @@ aplikasi tidak menyediakan self-signup sehingga seluruh akun Auth adalah admin.
 Gambar baru dibatasi JPG/PNG/WebP, maksimal 4 file dan 5 MB per file. Hapus
 produk juga membersihkan objek Storage yang terkait.
 
+Nomor WhatsApp katalog dibaca dari tabel publik `site_settings` melalui
+`lib/settings.ts` dan hanya dapat diubah admin lewat Server Action
+`updateWhatsAppNumber`. Migration-nya ada di
+`docs/supabase/whatsapp-settings.sql`; konstanta di `lib/constants.ts` hanya
+fallback ketika pengaturan belum tersedia.
+
 Ikon memakai `lucide-react` (SVG inline). Jangan memuat font Material Symbols
 dari CDN.
 

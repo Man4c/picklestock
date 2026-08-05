@@ -1,4 +1,4 @@
-/** Nomor tujuan pesanan WhatsApp. Nanti dapat diatur admin lewat Supabase. */
+/** Fallback aman ketika pengaturan Supabase belum tersedia. */
 export const WHATSAPP_NUMBER = "+62 812-3456-7890";
 
 export const BRANDS = ["JOOLA", "Selkirk", "CRBN", "Head"] as const;

@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PickleStock
 
-## Getting Started
+Katalog raket pickleball dengan dashboard admin untuk mengelola produk, stok,
+gambar Supabase Storage, dan nomor WhatsApp tujuan pemesanan.
 
-First, run the development server:
+## Stack
+
+- Next.js 16 App Router + React 19
+- Tailwind CSS v4
+- Supabase Database, Auth, dan Storage
+- Vitest untuk unit/regression test
+
+## Menjalankan lokal
+
+1. Salin `.env.example` menjadi `.env.local`.
+2. Isi `NEXT_PUBLIC_SUPABASE_URL` dan `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+3. Jalankan SQL berikut di Supabase SQL Editor secara berurutan:
+   - `docs/supabase/schema.sql` untuk instalasi baru; atau
+   - `docs/supabase/crud-storage.sql` dan
+     `docs/supabase/whatsapp-settings.sql` untuk database lama.
+4. Buat akun admin melalui Supabase Authentication dengan Auto Confirm aktif.
+5. Jalankan aplikasi:
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Katalog tersedia di `http://localhost:3000` dan dashboard di
+`http://localhost:3000/admin`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Pemeriksaan kualitas
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run check
+```
 
-## Learn More
+Perintah tersebut menjalankan TypeScript, ESLint, 19 test otomatis, dan build
+produksi. Detail deployment dan smoke test tersedia di
+[`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
 
-To learn more about Next.js, take a look at the following resources:
+## Keamanan
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Katalog dan pengaturan WhatsApp hanya dapat dibaca publik.
+- Semua mutation memverifikasi user Supabase di Server Action.
+- RLS membatasi tulis produk, pengaturan, dan Storage ke role `authenticated`.
+- Aplikasi tidak menyediakan registrasi mandiri; akun admin dibuat manual.
+- Gambar dibatasi JPG/PNG/WebP, maksimal empat file dan 5 MB per file.

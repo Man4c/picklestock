@@ -2,11 +2,16 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Product } from "@/lib/types";
 import { formatRupiah, buildWhatsAppUrl } from "@/lib/format";
-import { WHATSAPP_NUMBER } from "@/lib/constants";
 import { Badge } from "@/components/ui/Badge";
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 
-export function ProductCard({ product }: { product: Product }) {
+export function ProductCard({
+  product,
+  whatsappNumber,
+}: {
+  product: Product;
+  whatsappNumber: string;
+}) {
   const ready = product.status === "ready";
 
   return (
@@ -45,7 +50,7 @@ export function ProductCard({ product }: { product: Product }) {
             {formatRupiah(product.price)}
           </p>
           <a
-            href={buildWhatsAppUrl(WHATSAPP_NUMBER, product)}
+            href={buildWhatsAppUrl(whatsappNumber, product)}
             target="_blank"
             rel="noopener noreferrer"
             className={`inline-flex w-full items-center justify-center gap-1.5 rounded-btn px-2 py-2.5 font-label-md text-label-md transition-colors sm:gap-2 ${

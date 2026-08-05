@@ -2,15 +2,20 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import type { Product } from "@/lib/types";
 import { formatRupiah, buildWhatsAppUrl } from "@/lib/format";
-import { WHATSAPP_NUMBER } from "@/lib/constants";
 import { Badge } from "@/components/ui/Badge";
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 import { ProductGallery } from "./ProductGallery";
 import { SpecGrid } from "./SpecGrid";
 
-export function ProductDetail({ product }: { product: Product }) {
+export function ProductDetail({
+  product,
+  whatsappNumber,
+}: {
+  product: Product;
+  whatsappNumber: string;
+}) {
   const ready = product.status === "ready";
-  const waUrl = buildWhatsAppUrl(WHATSAPP_NUMBER, product);
+  const waUrl = buildWhatsAppUrl(whatsappNumber, product);
   const ctaLabel = ready ? "Pesan via WhatsApp" : "Pre-Order via WhatsApp";
 
   return (

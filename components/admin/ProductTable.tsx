@@ -5,18 +5,23 @@ import Image from "next/image";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import type { Product } from "@/lib/types";
 import { formatRupiah } from "@/lib/format";
-import { WHATSAPP_NUMBER } from "@/lib/constants";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { IconButton } from "@/components/ui/IconButton";
-import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
+import { WhatsAppSettingForm } from "./WhatsAppSettingForm";
 import { updateProductStock } from "@/app/admin/product-actions";
 import { ProductFormModal } from "./ProductFormModal";
 import { DeleteProductDialog } from "./DeleteProductDialog";
 
 type ModalState = { open: false } | { open: true; product: Product | null };
 
-export function ProductTable({ products }: { products: Product[] }) {
+export function ProductTable({
+  products,
+  whatsappNumber,
+}: {
+  products: Product[];
+  whatsappNumber: string;
+}) {
   const [stockDrafts, setStockDrafts] = useState<Record<string, number>>({});
   const [modal, setModal] = useState<ModalState>({ open: false });
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
@@ -25,7 +30,6 @@ export function ProductTable({ products }: { products: Product[] }) {
     message: string;
   } | null>(null);
   const [stockPending, startStockTransition] = useTransition();
-  const [phone, setPhone] = useState(WHATSAPP_NUMBER);
 
   function saveStock(product: Product) {
     const stock = stockDrafts[product.id] ?? product.stock;
@@ -86,28 +90,7 @@ export function ProductTable({ products }: { products: Product[] }) {
         </div>
       )}
 
-      {/* Pengaturan WhatsApp — mobile */}
-      <div className="flex flex-col gap-2 rounded-card border border-border-subtle bg-surface-pure p-padding-card shadow-soft md:hidden">
-        <label
-          htmlFor="wa-mobile"
-          className="flex items-center gap-2 font-label-md text-label-md text-on-surface"
-        >
-          <WhatsAppIcon size={16} className="text-secondary" />
-          Nomor WhatsApp Admin
-        </label>
-        {/* Tumpuk di layar sempit (tombol penuh-lebar), sejajar di >= sm. */}
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <input
-            id="wa-mobile"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            className="h-10 w-full rounded-input border border-border-subtle bg-surface-input px-4 font-body-sm text-body-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:flex-1"
-          />
-          <Button type="button" className="h-10 w-full sm:w-auto">
-            Simpan
-          </Button>
-        </div>
-      </div>
+      <WhatsAppSettingForm initialPhone={whatsappNumber} variant="mobile" />
 
       {/* Daftar kartu — mobile & tablet (< lg). Tabel lebar-tetap tidak muat di
           layar sempit: bikin dokumen melebar (white space) dan menyembunyikan

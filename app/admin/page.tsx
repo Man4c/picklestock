@@ -4,6 +4,7 @@ import { AdminHeader } from "@/components/layout/AdminHeader";
 import { Footer } from "@/components/layout/Footer";
 import { ProductTable } from "@/components/admin/ProductTable";
 import { getAllProducts } from "@/lib/products";
+import { getWhatsAppNumber } from "@/lib/settings";
 import { createClient } from "@/lib/supabase/server";
 import { SITE_NAME } from "@/lib/constants";
 
@@ -23,13 +24,16 @@ export default async function AdminPage() {
     redirect("/admin/login");
   }
 
-  const products = await getAllProducts();
+  const [products, whatsappNumber] = await Promise.all([
+    getAllProducts(),
+    getWhatsAppNumber(),
+  ]);
 
   return (
     <div className="flex min-h-screen flex-col bg-surface">
-      <AdminHeader />
+      <AdminHeader whatsappNumber={whatsappNumber} />
       <main className="mx-auto mt-16 flex w-full max-w-[1200px] flex-1 flex-col gap-stack-section px-margin-page py-stack-section">
-        <ProductTable products={products} />
+        <ProductTable products={products} whatsappNumber={whatsappNumber} />
       </main>
       <Footer />
     </div>

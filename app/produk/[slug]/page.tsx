@@ -4,6 +4,7 @@ import { TopNav } from "@/components/layout/TopNav";
 import { Footer } from "@/components/layout/Footer";
 import { ProductDetail } from "@/components/product/ProductDetail";
 import { getProductBySlug } from "@/lib/products";
+import { getWhatsAppNumber } from "@/lib/settings";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -20,13 +21,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProductPage({ params }: Props) {
   const { slug } = await params;
-  const product = await getProductBySlug(slug);
+  const [product, whatsappNumber] = await Promise.all([
+    getProductBySlug(slug),
+    getWhatsAppNumber(),
+  ]);
   if (!product) notFound();
 
   return (
     <>
       <TopNav />
-      <ProductDetail product={product} />
+      <ProductDetail product={product} whatsappNumber={whatsappNumber} />
       <Footer />
     </>
   );

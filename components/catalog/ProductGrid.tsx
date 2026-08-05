@@ -1,7 +1,13 @@
 import type { Product } from "@/lib/types";
 import { ProductCard } from "./ProductCard";
 
-export function ProductGrid({ products }: { products: Product[] }) {
+export function ProductGrid({
+  products,
+  whatsappNumber,
+}: {
+  products: Product[];
+  whatsappNumber: string;
+}) {
   if (products.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-card border border-border-subtle bg-surface-container-low py-16 text-center">
@@ -18,7 +24,11 @@ export function ProductGrid({ products }: { products: Product[] }) {
   return (
     <div className="grid grid-cols-2 gap-gutter-grid lg:grid-cols-3 xl:grid-cols-4">
       {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+        <ProductCard
+          key={product.id}
+          product={product}
+          whatsappNumber={whatsappNumber}
+        />
       ))}
     </div>
   );
