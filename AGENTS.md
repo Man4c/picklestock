@@ -20,8 +20,16 @@ Data produk diakses lewat `lib/products.ts` (`getAllProducts`,
 membaca dari **Supabase** (bukan lagi array statis): client di
 `lib/supabase/server.ts`, kredensial di `.env.local` (template `.env.example`),
 skema & seed di `docs/supabase/`. `status` produk diturunkan dari `stock`
-(> 0 = `ready`), tidak disimpan di DB. Menulis (CRUD admin) belum ada — masih
-sub-proyek berikutnya; lihat `docs/superpowers/specs/2026-08-01-supabase-*`.
+(> 0 = `ready`), tidak disimpan di DB.
+
+CRUD admin memakai Server Actions di `app/admin/product-actions.ts`; setiap
+action memvalidasi `getUser()` sebelum menulis dan memanggil `revalidatePath`
+untuk katalog, admin, dan detail produk. Policy tulis tabel + bucket publik
+`product-images` ada di `docs/supabase/crud-storage.sql` (juga tercakup dalam
+`schema.sql`). Hanya role `authenticated` yang boleh insert/update/delete;
+aplikasi tidak menyediakan self-signup sehingga seluruh akun Auth adalah admin.
+Gambar baru dibatasi JPG/PNG/WebP, maksimal 4 file dan 5 MB per file. Hapus
+produk juga membersihkan objek Storage yang terkait.
 
 Ikon memakai `lucide-react` (SVG inline). Jangan memuat font Material Symbols
 dari CDN.

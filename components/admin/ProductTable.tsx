@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Image from "next/image";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import type { Product } from "@/lib/types";
@@ -10,18 +10,37 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { IconButton } from "@/components/ui/IconButton";
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
+import { updateProductStock } from "@/app/admin/product-actions";
 import { ProductFormModal } from "./ProductFormModal";
+import { DeleteProductDialog } from "./DeleteProductDialog";
 
 type ModalState = { open: false } | { open: true; product: Product | null };
 
 export function ProductTable({ products }: { products: Product[] }) {
-  // Stok hanya hidup di state — semua perubahan hilang saat halaman dimuat
-  // ulang. Ini disengaja sampai Supabase terpasang, bukan bug.
-  const [stocks, setStocks] = useState<Record<string, number>>(() =>
-    Object.fromEntries(products.map((p) => [p.id, p.stock])),
-  );
+  const [stockDrafts, setStockDrafts] = useState<Record<string, number>>({});
   const [modal, setModal] = useState<ModalState>({ open: false });
+  const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
+  const [notice, setNotice] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
+  const [stockPending, startStockTransition] = useTransition();
   const [phone, setPhone] = useState(WHATSAPP_NUMBER);
+
+  function saveStock(product: Product) {
+    const stock = stockDrafts[product.id] ?? product.stock;
+    if (stock === product.stock) return;
+
+    startStockTransition(async () => {
+      const result = await updateProductStock(product.id, stock);
+      setNotice({ type: result.status === "error" ? "error" : "success", message: result.message });
+      setStockDrafts((current) => {
+        const next = { ...current };
+        delete next[product.id];
+        return next;
+      });
+    });
+  }
 
   const thClass =
     "px-padding-card py-3 font-eyebrow text-eyebrow uppercase text-secondary";
@@ -46,6 +65,26 @@ export function ProductTable({ products }: { products: Product[] }) {
           Tambah Produk Baru
         </Button>
       </div>
+
+      {notice && (
+        <div
+          role={notice.type === "error" ? "alert" : "status"}
+          className={`flex items-center justify-between gap-4 rounded-btn px-4 py-3 font-body-sm text-body-sm ${
+            notice.type === "error"
+              ? "bg-error-container text-on-error-container"
+              : "bg-surface-container-high text-on-surface"
+          }`}
+        >
+          <span>{notice.message}</span>
+          <button
+            type="button"
+            onClick={() => setNotice(null)}
+            className="font-label-md text-label-md underline underline-offset-2"
+          >
+            Tutup
+          </button>
+        </div>
+      )}
 
       {/* Pengaturan WhatsApp — mobile */}
       <div className="flex flex-col gap-2 rounded-card border border-border-subtle bg-surface-pure p-padding-card shadow-soft md:hidden">
@@ -76,7 +115,7 @@ export function ProductTable({ products }: { products: Product[] }) {
           hover). */}
       <ul className="flex flex-col gap-4 lg:hidden">
         {products.map((product) => {
-          const stock = stocks[product.id];
+          const stock = stockDrafts[product.id] ?? product.stock;
           const ready = stock > 0;
           return (
             <li
@@ -119,12 +158,14 @@ export function ProductTable({ products }: { products: Product[] }) {
                     type="number"
                     min={0}
                     value={stock}
+                    disabled={stockPending}
                     onChange={(e) =>
-                      setStocks((s) => ({
+                      setStockDrafts((s) => ({
                         ...s,
                         [product.id]: Math.max(0, Number(e.target.value)),
                       }))
                     }
+                    onBlur={() => saveStock(product)}
                     className="w-20 rounded-btn border border-border-subtle bg-surface-input px-2 py-1 text-center font-body-md text-body-md focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                   />
                   <Badge status={ready ? "ready" : "preorder"}>
@@ -140,6 +181,7 @@ export function ProductTable({ products }: { products: Product[] }) {
                   </IconButton>
                   <IconButton
                     label={`Hapus ${product.name}`}
+                    onClick={() => setDeleteTarget(product)}
                     className="hover:bg-error-container hover:text-error"
                   >
                     <Trash2 size={20} aria-hidden="true" />
@@ -182,7 +224,7 @@ export function ProductTable({ products }: { products: Product[] }) {
             </thead>
             <tbody className="divide-y divide-border-subtle">
               {products.map((product) => {
-                const stock = stocks[product.id];
+                const stock = stockDrafts[product.id] ?? product.stock;
                 const ready = stock > 0;
                 return (
                   <tr
@@ -223,12 +265,14 @@ export function ProductTable({ products }: { products: Product[] }) {
                         type="number"
                         min={0}
                         value={stock}
+                        disabled={stockPending}
                         onChange={(e) =>
-                          setStocks((s) => ({
+                          setStockDrafts((s) => ({
                             ...s,
                             [product.id]: Math.max(0, Number(e.target.value)),
                           }))
                         }
+                        onBlur={() => saveStock(product)}
                         className="w-full rounded-btn border border-border-subtle bg-surface-input px-2 py-1 text-center font-body-md text-body-md focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                       />
                     </td>
@@ -247,6 +291,7 @@ export function ProductTable({ products }: { products: Product[] }) {
                         </IconButton>
                         <IconButton
                           label={`Hapus ${product.name}`}
+                          onClick={() => setDeleteTarget(product)}
                           className="hover:bg-error-container hover:text-error"
                         >
                           <Trash2 size={20} aria-hidden="true" />
@@ -279,8 +324,25 @@ export function ProductTable({ products }: { products: Product[] }) {
 
       {modal.open && (
         <ProductFormModal
+          key={modal.product?.id ?? "new-product"}
           product={modal.product}
           onClose={() => setModal({ open: false })}
+          onSaved={(message) => {
+            setModal({ open: false });
+            setNotice({ type: "success", message });
+          }}
+        />
+      )}
+
+      {deleteTarget && (
+        <DeleteProductDialog
+          key={deleteTarget.id}
+          product={deleteTarget}
+          onClose={() => setDeleteTarget(null)}
+          onDeleted={(message) => {
+            setDeleteTarget(null);
+            setNotice({ type: "success", message });
+          }}
         />
       )}
     </>
