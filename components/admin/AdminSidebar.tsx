@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   Boxes,
   ClipboardList,
   LayoutDashboard,
   Menu,
-  Warehouse,
   X,
 } from "lucide-react";
 import { useState } from "react";
@@ -71,7 +71,13 @@ export function AdminSidebar() {
       >
         <div className="flex h-16 items-center gap-3 border-b border-on-primary-container px-6">
           <span className="flex h-9 w-9 items-center justify-center rounded-btn bg-on-primary text-primary">
-            <Warehouse size={19} aria-hidden="true" />
+            <Image
+              src="/icon.svg"
+              alt=""
+              width={28}
+              height={28}
+              className="h-7 w-7 rounded-btn"
+            />
           </span>
           <div>
             <p className="font-display-logo text-display-logo tracking-tighter">
