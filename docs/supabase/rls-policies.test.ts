@@ -53,4 +53,17 @@ describe("regresi kebijakan RLS", () => {
     );
     expect(sql).toContain("using (user_id = (select auth.uid()))");
   });
+
+  it("membatasi ringkasan dashboard ke pengguna terautentikasi", () => {
+    expect(sql).toContain(
+      "create or replace function public.get_admin_dashboard_summary",
+    );
+    expect(sql).toContain("security invoker");
+    expect(sql).toContain(
+      "revoke all on function public.get_admin_dashboard_summary(integer) from anon",
+    );
+    expect(sql).toContain(
+      "grant execute on function public.get_admin_dashboard_summary(integer) to authenticated",
+    );
+  });
 });

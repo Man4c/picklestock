@@ -8,6 +8,8 @@ import { getWhatsAppNumber } from "@/lib/settings";
 import { getAdminClient } from "@/lib/admin";
 import { ADMIN_PAGE_SIZE } from "@/lib/constants";
 import { AdminSectionNav } from "@/components/admin/AdminSectionNav";
+import { AdminOverview } from "@/components/admin/AdminOverview";
+import { getAdminDashboardSummary } from "@/lib/admin-dashboard";
 
 export const metadata: Metadata = {
   title: "Dashboard Admin",
@@ -27,13 +29,14 @@ export default async function AdminPage({
   }
 
   const params = await searchParams;
-  const [productPage, whatsappNumber] = await Promise.all([
+  const [productPage, whatsappNumber, dashboardSummary] = await Promise.all([
     getProductsPage({
       page: Number(params.page ?? "1"),
       pageSize: ADMIN_PAGE_SIZE,
       query: params.q ?? "",
     }),
     getWhatsAppNumber(),
+    getAdminDashboardSummary(),
   ]);
 
   return (
@@ -41,6 +44,7 @@ export default async function AdminPage({
       <AdminHeader whatsappNumber={whatsappNumber} />
       <main className="mx-auto mt-16 flex w-full max-w-[1200px] flex-1 flex-col gap-stack-section px-margin-page py-stack-section">
         <AdminSectionNav active="products" />
+        <AdminOverview summary={dashboardSummary} />
         <ProductTable productPage={productPage} whatsappNumber={whatsappNumber} />
       </main>
       <Footer />
