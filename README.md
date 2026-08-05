@@ -42,9 +42,8 @@ npm run check
 
 Perintah tersebut menjalankan TypeScript, ESLint, test otomatis, dan build
 produksi. Detail deployment dan smoke test tersedia di
-[`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md). Panduan backup gratis, Security
-Advisor, dan log produksi tersedia di
-[`docs/BACKUP_AND_MONITORING.md`](docs/BACKUP_AND_MONITORING.md).
+[`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md). Panduan Security Advisor dan log
+produksi tersedia di [`docs/MONITORING.md`](docs/MONITORING.md).
 
 ## Keamanan
 

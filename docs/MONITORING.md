@@ -1,32 +1,8 @@
-# Backup dan monitoring gratis
+# Monitoring dan keamanan gratis
 
-PickleStock menggunakan fasilitas yang tersedia di Supabase Free, Vercel Hobby,
-dan GitHub Actions. Konfigurasi ini tidak membutuhkan domain custom atau layanan
-monitoring berbayar.
-
-## Backup database
-
-Supabase Free tidak menyediakan backup otomatis yang dapat dipulihkan dari
-dashboard. Workflow `.github/workflows/backup.yml` menjalankan logical dump
-setiap hari pukul 02.17 WITA dan menyimpannya sebagai GitHub Actions artifact
-selama 30 hari.
-
-Tambahkan repository secret bernama `SUPABASE_DB_URL` di GitHub:
-
-1. Buka **Settings → Secrets and variables → Actions**.
-2. Buat **New repository secret** bernama `SUPABASE_DB_URL`.
-3. Isi dengan direct database connection string dari Supabase **Connect**.
-4. Buka **Actions → Backup Supabase → Run workflow** untuk pengujian pertama.
-5. Pastikan artifact berisi `roles.sql`, `schema.sql`, dan `data.sql`.
-
-Jangan menaruh connection string di `.env.local`, Vercel, source code, atau log.
-Artifact hanya dapat diunduh oleh pengguna GitHub yang memiliki akses ke repo.
-
-### Pemulihan
-
-Unduh artifact terbaru, buat project Supabase tujuan, lalu ikuti prosedur restore
-resmi Supabase. Selalu uji restore ke project sementara lebih dahulu. File dump
-dapat mengandung data pelanggan dan wajib diperlakukan sebagai data rahasia.
+PickleStock menggunakan fasilitas yang tersedia di Supabase Free dan Vercel
+Hobby. Konfigurasi ini tidak membutuhkan domain custom atau layanan monitoring
+berbayar.
 
 ## Security Advisor
 

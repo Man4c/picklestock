@@ -53,9 +53,9 @@ Untuk mengaktifkan CI GitHub, tambahkan repository secrets
 - Nomor WhatsApp dapat disimpan dari admin dan dipakai pada CTA katalog/detail.
 - Logout mengakhiri sesi dan melindungi kembali `/admin`.
 
-## 5. Pemulihan
+## 5. Rollback aplikasi
 
-Database dan Storage adalah sumber data utama. Aktifkan backup sesuai paket
-Supabase yang digunakan, dan simpan migration SQL di repository. Jika deploy
-bermasalah, rollback ke deployment Vercel sebelumnya; jangan menghapus tabel
-atau bucket ketika melakukan rollback aplikasi.
+Database dan Storage adalah sumber data utama, sedangkan migration SQL disimpan
+di repository. Jika deploy bermasalah, rollback ke deployment Vercel
+sebelumnya; jangan menghapus tabel atau bucket ketika melakukan rollback
+aplikasi.
