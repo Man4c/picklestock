@@ -160,6 +160,7 @@ async function uniqueSlug(
 function revalidateProductPages() {
   revalidatePath("/");
   revalidatePath("/admin");
+  revalidatePath("/admin/products");
   revalidatePath("/produk/[slug]", "page");
 }
 

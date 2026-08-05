@@ -86,7 +86,7 @@ export async function updateWhatsAppNumber(
   }
 
   revalidatePath("/");
-  revalidatePath("/admin");
+  revalidatePath("/admin", "layout");
   revalidatePath("/produk/[slug]", "page");
   return { status: "success", message: "Nomor WhatsApp tersimpan.", value: phone };
 }

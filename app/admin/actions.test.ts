@@ -79,7 +79,7 @@ describe("updateWhatsAppNumber", () => {
       }),
     );
     expect(revalidatePathMock).toHaveBeenCalledWith("/");
-    expect(revalidatePathMock).toHaveBeenCalledWith("/admin");
+    expect(revalidatePathMock).toHaveBeenCalledWith("/admin", "layout");
     expect(revalidatePathMock).toHaveBeenCalledWith("/produk/[slug]", "page");
   });
 });

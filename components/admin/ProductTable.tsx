@@ -9,7 +9,6 @@ import { formatRupiah } from "@/lib/format";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { IconButton } from "@/components/ui/IconButton";
-import { WhatsAppSettingForm } from "./WhatsAppSettingForm";
 import { updateProductStock } from "@/app/admin/product-actions";
 import { ProductFormModal } from "./ProductFormModal";
 import { DeleteProductDialog } from "./DeleteProductDialog";
@@ -20,10 +19,8 @@ type ModalState = { open: false } | { open: true; product: Product | null };
 
 export function ProductTable({
   productPage,
-  whatsappNumber,
 }: {
   productPage: ProductPage;
-  whatsappNumber: string;
 }) {
   const { products, page, total, totalPages, query } = productPage;
   const [stockDrafts, setStockDrafts] = useState<Record<string, number>>({});
@@ -100,8 +97,6 @@ export function ProductTable({
           </button>
         </div>
       )}
-
-      <WhatsAppSettingForm initialPhone={whatsappNumber} variant="mobile" />
 
       {products.length === 0 && (
         <div className="rounded-card border border-dashed border-border-subtle bg-surface-pure px-6 py-10 text-center">
@@ -314,7 +309,7 @@ export function ProductTable({
       <Pagination
         page={page}
         totalPages={totalPages}
-        pathname="/admin"
+        pathname="/admin/products"
         query={{ q: query || undefined }}
       />
 
